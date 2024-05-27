@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import 'quill/dist/quill.bubble.css';
 
 const toolbarOptions = [
     ['bold', 'italic', 'underline', 'strike'],
@@ -38,7 +38,7 @@ function Toolbar() {
             modules: {
                 toolbar: toolbarOptions
             },
-            theme: "snow"
+            theme: "bubble",
          });
     }, []);
 
@@ -46,4 +46,5 @@ function Toolbar() {
         <div id="container" ref={wrapperRef}></div>
     );
 }
+
 export default Toolbar;
