@@ -49,17 +49,3 @@ app.get('/principale/:id', (req, res) => {
     }
     
 })
-
-// app.get('/books', (req, res) => {
-//     let book = []
-//     db.collection('books')
-//         .find()
-//         .sort({ author: 1 })
-//         .forEach(p => book.push(p))
-//         .then(() => {
-//             res.status(200).json(book)
-//         })
-//         .catch(() => {
-//             res.status(500). json({error: 'Could not fetch Principale documents'})
-//         })
-// })
