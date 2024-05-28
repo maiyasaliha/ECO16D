@@ -49,3 +49,17 @@ app.get('/principale/:id', (req, res) => {
     }
     
 })
+
+app.post('/postPrincipale', (req, res) => {
+    const p = req.body;
+    db.collection('principale')
+    .insertOne(p)
+    .then(result => {
+        res.status(201).json(result)
+    })
+    .catch(err => {
+        res.status(500).json({err: 'Could not create a new Principale document'})
+
+    })
+
+})

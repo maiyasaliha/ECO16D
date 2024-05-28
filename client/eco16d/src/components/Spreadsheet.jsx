@@ -6,7 +6,7 @@ import axios from 'axios';
 
 function Spreadsheet() {
     const pagination = true;
-    const paginationPageSize = 5;
+    const paginationPageSize = 1000;
     const paginationPageSizeSelector = [5, 10, 50];
 
     const [rowData, setRowData] = useState([]);
