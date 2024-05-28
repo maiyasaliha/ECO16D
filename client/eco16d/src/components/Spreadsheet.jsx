@@ -2,9 +2,6 @@ import React, {useState} from 'react'
 import { AgGridReact } from 'ag-grid-react';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
-import ColourPicker from './tools/ColourPicker';
-import BoldButton from './tools/BoldButton';
-
 
 function Spreadsheet() {
     const pagination = true;
@@ -84,8 +81,7 @@ function Spreadsheet() {
         }) },
         { 
             field: "description", 
-            editable: true,
-            cellStyle: { backgroundColor: '#987654'}
+            editable: true
         },
     ]);
   return (
@@ -93,8 +89,6 @@ function Spreadsheet() {
   className="ag-theme-quartz"
   style={{ height: 500 }}
  >
-    <ColourPicker/>
-    <BoldButton/>
    <AgGridReact
        rowData={rowData}
        columnDefs={colDefs}
