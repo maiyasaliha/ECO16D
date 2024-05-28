@@ -1,8 +1,10 @@
 const express = require('express');
 const { connectToDb, getDb } = require('./database/database');
 const { ObjectId } = require('mongodb');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 let db
@@ -22,7 +24,6 @@ app.get('/principale', (req, res) => {
     let principals = []
     db.collection('principale')
         .find()
-        .sort({ author: 1 })
         .forEach(p => principals.push(p))
         .then(() => {
             res.status(200).json(principals)
@@ -48,3 +49,17 @@ app.get('/principale/:id', (req, res) => {
     }
     
 })
+
+// app.get('/books', (req, res) => {
+//     let book = []
+//     db.collection('books')
+//         .find()
+//         .sort({ author: 1 })
+//         .forEach(p => book.push(p))
+//         .then(() => {
+//             res.status(200).json(book)
+//         })
+//         .catch(() => {
+//             res.status(500). json({error: 'Could not fetch Principale documents'})
+//         })
+// })
