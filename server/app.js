@@ -3,6 +3,7 @@ const { connectToDb, getDb } = require('./database/database');
 const { ObjectId } = require('mongodb');
 
 const app = express();
+app.use(express.json());
 
 let db
 connectToDb((e) => {
@@ -27,7 +28,7 @@ app.get('/principale', (req, res) => {
             res.status(200).json(principals)
         })
         .catch(() => {
-            res.status(500). json({error: 'Could not fetch the docs'})
+            res.status(500). json({error: 'Could not fetch Principale documents'})
         })
 })
 
@@ -40,10 +41,10 @@ app.get('/principale/:id', (req, res) => {
             res.status(200).json(doc)
         })
         .catch(() => {
-            res.status(500).json({error: 'Could not fetch docs'})
+            res.status(500).json({error: 'Could not fetch Principale documents'})
         })
     } else {
-        res.status(500).json({error: 'not a valid id'})
+        res.status(500).json({error: 'not a valid Principale id'})
     }
     
 })
