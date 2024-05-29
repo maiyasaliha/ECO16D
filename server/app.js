@@ -63,3 +63,24 @@ app.post('/postPrincipale', (req, res) => {
     })
 
 })
+
+app.post('/updatePrincipale', (req, res) => {
+    const { _id, field, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('principale')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Document updated successfully' });
+                } else {
+                    res.status(404).json({ error: 'Document not found or no change made' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});

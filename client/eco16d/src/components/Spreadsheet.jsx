@@ -39,6 +39,22 @@ function Spreadsheet() {
         }
     };
 
+    const onCellValueChanged = (params) => {
+        const updateData = {
+            _id: params.data._id,
+            field: params.colDef.field,
+            value: params.newValue
+        };
+
+        axios.post('http://localhost:3001/updatePrincipale', updateData)
+            .then(response => {
+                console.log("Data updated successfully:", response.data);
+            })
+            .catch(err => {
+                console.log('Error updating data:', err);
+            });
+    };
+
     const cellStyle = {
         borderRight: '1px solid #ccc',
         borderBottom: '1px solid #ccc'
@@ -57,6 +73,7 @@ function Spreadsheet() {
        paginationPageSize={paginationPageSize}
        paginationPageSizeSelector={paginationPageSizeSelector}
        defaultColDef={{ cellStyle }}
+       onCellValueChanged={onCellValueChanged}
    />
  </div>
   )
