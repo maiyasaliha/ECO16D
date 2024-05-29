@@ -7,7 +7,7 @@ import axios from 'axios';
 function Spreadsheet() {
     const pagination = true;
     const paginationPageSize = 1000;
-    const paginationPageSizeSelector = [5, 10, 50];
+    const paginationPageSizeSelector = [5, 10, 50, 1000];
 
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
@@ -39,10 +39,15 @@ function Spreadsheet() {
         }
     };
 
+    const cellStyle = {
+        borderRight: '1px solid #ccc',
+        borderBottom: '1px solid #ccc'
+    };
+
   return (
     <div
   className="ag-theme-quartz"
-  style={{ height: 500 }}
+  style={{ height: 900 }}
  >
    <AgGridReact
        rowData={rowData}
@@ -51,6 +56,7 @@ function Spreadsheet() {
        pagination={pagination}
        paginationPageSize={paginationPageSize}
        paginationPageSizeSelector={paginationPageSizeSelector}
+       defaultColDef={{ cellStyle }}
    />
  </div>
   )
