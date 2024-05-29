@@ -3,6 +3,9 @@ import { AgGridReact } from 'ag-grid-react';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
 import axios from 'axios';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3001');
 
 function Spreadsheet() {
     const pagination = true;
@@ -12,18 +15,47 @@ function Spreadsheet() {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
-
+    useEffect(() => {
+        socket.on('connect', () => {
+            console.log('slay socket connected');
+        });
+    
+        return () => {
+            socket.off('connect');
+        };
+    }, []);
+    
     useEffect(() => {
         axios.get('http://localhost:3001/principale')
             .then(response => {
-                console.log("Fetched data:" + response.data);
                 setRowData(response.data);
                 generateColDefs(response.data);
             })
             .catch(err => {
                 console.log('Error fetching data:', err)
             });
+            socket.on('cellUpdated', (updatedCell) => {
+                updateGridCell(updatedCell);
+            });
+    
+            return () => {
+                socket.off('cellUpdated');
+            };
     }, []);
+
+    const updateGridCell = (updatedCell) => {
+        setRowData(prevRowData => {
+            const rowIndex = prevRowData.findIndex(row => row._id === updatedCell._id);
+    
+            if (rowIndex !== -1) {
+                const updatedRowData = [...prevRowData];
+                updatedRowData[rowIndex][updatedCell.field] = updatedCell.value;
+                return updatedRowData;
+            }
+    
+            return prevRowData;
+        });
+    };
     
     const generateColDefs = (data) => {
         if (data.length > 0) {
@@ -34,7 +66,6 @@ function Spreadsheet() {
                 editable: true,
                 filter: true,
             }));
-            console.log('Generated colDefs:', colDefs);
             setColDefs(colDefs);
         }
     };
@@ -45,6 +76,8 @@ function Spreadsheet() {
             field: params.colDef.field,
             value: params.newValue
         };
+
+        socket.emit('updateCell', updateData);
 
         axios.post('http://localhost:3001/updatePrincipale', updateData)
             .then(response => {
@@ -63,7 +96,7 @@ function Spreadsheet() {
   return (
     <div
   className="ag-theme-quartz"
-  style={{ height: 900 }}
+  style={{ height: '100vh', width: '100%' }}
  >
    <AgGridReact
        rowData={rowData}
@@ -72,7 +105,7 @@ function Spreadsheet() {
        pagination={pagination}
        paginationPageSize={paginationPageSize}
        paginationPageSizeSelector={paginationPageSizeSelector}
-       defaultColDef={{ cellStyle }}
+       defaultColDef={{ cellStyle, editable: true }}
        onCellValueChanged={onCellValueChanged}
    />
  </div>
