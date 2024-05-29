@@ -8,10 +8,6 @@ import io from 'socket.io-client';
 const socket = io('http://localhost:3001');
 
 function Spreadsheet() {
-    const pagination = true;
-    const paginationPageSize = 1000;
-    const paginationPageSizeSelector = [5, 10, 50, 1000];
-
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -101,11 +97,9 @@ function Spreadsheet() {
        rowData={rowData}
        columnDefs={colDefs}
        rowSelection={'multiple'}
-       pagination={pagination}
-       paginationPageSize={paginationPageSize}
-       paginationPageSizeSelector={paginationPageSizeSelector}
        defaultColDef={{ cellStyle, editable: true }}
        onCellValueChanged={onCellValueChanged}
+       columnHoverHighlight={true}
    />
  </div>
   )
