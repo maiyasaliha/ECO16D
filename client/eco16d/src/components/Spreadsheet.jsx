@@ -17,7 +17,6 @@ function Spreadsheet() {
 
     useEffect(() => {
         socket.on('connect', () => {
-            console.log('slay socket connected');
         });
     
         return () => {

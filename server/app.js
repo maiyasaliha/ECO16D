@@ -24,7 +24,7 @@ connectToDb((err) => {
             console.log('A user connected');
 
             socket.on('disconnect', () => {
-                console.log('User disconnected');
+                console.log('A user disconnected');
             });
 
             socket.on('updateCell', (data) => {
