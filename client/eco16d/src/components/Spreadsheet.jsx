@@ -23,20 +23,25 @@ function Spreadsheet() {
     useEffect(() => {
         axios.get('http://localhost:3001/principale')
             .then(response => {
-                setRowData(response.data);
-                generateColDefs(response.data);
+                const data = response.data.map((row, index) => ({
+                    ...row,
+                    index: index + 1
+                }));
+                setRowData(data);
+                generateColDefs(data);
             })
             .catch(err => {
-                console.log('Error fetching data:', err)
+                console.log('Error fetching data:', err);
             });
-            socket.on('cellUpdated', (updatedCell) => {
-                updateGridCell(updatedCell);
-            });
+        socket.on('cellUpdated', (updatedCell) => {
+            updateGridCell(updatedCell);
+        });
     
-            return () => {
-                socket.off('cellUpdated');
-            };
+        return () => {
+            socket.off('cellUpdated');
+        };
     }, []);
+    
 
     const updateGridCell = (updatedCell) => {
         setRowData(prevRowData => {
@@ -55,12 +60,23 @@ function Spreadsheet() {
     const generateColDefs = (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
-            const filteredKeys = keys.filter(key => key !== '_id');
-            const colDefs = filteredKeys.map(key => ({
-                field: key,
-                editable: true,
-                filter: true,
-            }));
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index');
+            const colDefs = [
+                {
+                    headerName: '',
+                    field: 'index',
+                    pinned: 'left',
+                    lockPinned: true,
+                    width: 70,
+                    sortable: false
+                },
+                ...filteredKeys.map(key => ({
+                    field: key,
+                    editable: true,
+                    filter: true,
+                    suppressMovable: true
+                }))
+            ];
             setColDefs(colDefs);
         }
     };
@@ -100,6 +116,7 @@ function Spreadsheet() {
        defaultColDef={{ cellStyle, editable: true }}
        onCellValueChanged={onCellValueChanged}
        columnHoverHighlight={true}
+       suppressDragLeaveHidesColumns={true}
    />
  </div>
   )
