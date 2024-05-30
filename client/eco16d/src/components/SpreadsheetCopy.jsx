@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
 
-function Spreadsheet() {
+function SpreadsheetCopy() {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -45,11 +45,14 @@ function Spreadsheet() {
 
     const updateGridCell = (updatedCell) => {
         setRowData(prevRowData => {
-            const rowIndex = prevRowData.findIndex(row => row._id === updatedCell._id);
+            const rowIndex = prevRowData.findIndex(row => row._id === updatedCell.rowId);
     
             if (rowIndex !== -1) {
                 const updatedRowData = [...prevRowData];
-                updatedRowData[rowIndex][updatedCell.field] = updatedCell.value;
+                const cellIndex = updatedRowData[rowIndex].cells.findIndex(cell => cell.col === updatedCell.col);
+                if (cellIndex !== -1) {
+                    updatedRowData[rowIndex].cells[cellIndex].value = updatedCell.value;
+                }
                 return updatedRowData;
             }
     
@@ -57,11 +60,42 @@ function Spreadsheet() {
         });
     };
     
-    const generateColDefs = (data) => {
+    const generateColDefs = async (data) => {
         if (data.length > 0) {
-            const keys = Object.keys(data[0]);
-            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index');
-            const colDefs = [
+            const firstRow = data[0];
+            const promises = firstRow.cells.map(async cell => {
+                const cellData = await fetchCellData(cell.cellId);
+                return {
+                    field: cell.col,
+                    editable: true,
+                    filter: true,
+                    suppressMovable: true,
+                    cellEditor: cellData.cellRenderer,
+                    valueGetter: (params) => {
+                        return cellData.value ? cellData.value : '';
+                    },
+                    cellStyle: (params) => {
+                        return {
+                            fontFamily: cellData.fontFamily,
+                            fontSize: cellData.fontSize,
+                            fontWeight: cellData.fontWeight,
+                            fontStyle: cellData.fontStyle,
+                            textDecoration: cellData.textDecoration,
+                            color: cellData.color,
+                            backgroundColor: cellData.backgroundColor,
+                            textAlign: cellData.textAlign,
+                            verticalAlign: cellData.verticalAlign,
+                            borderTop: cellData.borderTop,
+                            borderRight: cellData.borderRight,
+                            borderBottom: cellData.borderBottom,
+                            borderLeft: cellData.borderLeft,
+                            wrapText: cellData.wrapText
+                        };
+                    }
+                };
+            });
+            const resolvedColDefs = await Promise.all(promises);
+            setColDefs([
                 {
                     headerName: '',
                     field: 'index',
@@ -70,27 +104,30 @@ function Spreadsheet() {
                     width: 70,
                     sortable: false
                 },
-                ...filteredKeys.map(key => ({
-                    field: key,
-                    editable: true,
-                    filter: true,
-                    suppressMovable: true
-                }))
-            ];
-            setColDefs(colDefs);
+                ...resolvedColDefs
+            ]);
+        }
+    };
+
+    const fetchCellData = async (cellId) => {
+        try {
+            const response = await axios.get(`http://localhost:3001/cell/${cellId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching cell data here:', error);
+            return null;
         }
     };
 
     const onCellValueChanged = (params) => {
         const updateData = {
             _id: params.data._id,
-            field: params.colDef.field,
             value: params.newValue
         };
 
         socket.emit('updateCell', updateData);
 
-        axios.post('http://localhost:3001/updateCellRow', updateData)
+        axios.post('http://localhost:3001/updateCellText', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
             })
@@ -122,4 +159,4 @@ function Spreadsheet() {
   )
 }
 
-export default Spreadsheet
+export default SpreadsheetCopy

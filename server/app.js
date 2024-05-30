@@ -30,8 +30,8 @@ connectToDb((err) => {
             socket.on('updateCell', (data) => {
                 console.log('Received updateCell event:', data);
                 if (ObjectId.isValid(data._id)) {
-                    db.collection('principale')
-                        .updateOne({ _id: new ObjectId(data._id) }, { $set: { [data.field]: data.value } })
+                    db.collection('cells')
+                        .updateOne({ _id: data._id }, { $set: { value: data.value } })
                         .then(result => {
                             if (result.modifiedCount > 0) {
                                 socket.broadcast.emit('cellUpdated', data);
@@ -54,6 +54,7 @@ connectToDb((err) => {
     }
 });
 
+//Principale
 
 app.get('/principale', (req, res) => {
     let principals = []
@@ -104,6 +105,239 @@ app.post('/updatePrincipale', (req, res) => {
     
     if (ObjectId.isValid(_id)) {
         db.collection('principale')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Document updated successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+//Cells
+
+app.get('/cell', (req, res) => {
+    let cell = []
+    db.collection('cells')
+        .find()
+        .forEach(c => cell.push(c))
+        .then(() => {
+            res.status(200).json(cell)
+        })
+        .catch(() => {
+            res.status(500). json({error: 'Could not fetch Cell documents'})
+        })
+})
+
+app.get('/cell/:id', (req, res) => {
+
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('cells')
+        .findOne({_id: new ObjectId(req.params.id)})
+        .then(doc => {
+            res.status(200).json(doc)
+        })
+        .catch(() => {
+            res.status(500).json({error: 'Could not fetch Cell documents'})
+        })
+    } else {
+        res.status(500).json({error: 'not a valid Cell id'})
+    }
+    
+})
+
+app.post('/postCell', (req, res) => {
+    const c = req.body;
+    db.collection('cells')
+    .insertOne(c)
+    .then(result => {
+        res.status(201).json(result)
+    })
+    .catch(err => {
+        res.status(500).json({err: 'Could not create a new Cell document'})
+
+    })
+
+})
+
+app.post('/updateCellText', (req, res) => {
+    const { _id, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('cells')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { value: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: field + ' Updated sucessfully to ' + value });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document whyy chnage', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+app.post('/updateCellNew', (req, res) => {
+    const { _id, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('cells')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { [value]: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: field + ' Updated sucessfully to ' + value });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+app.post('/updateCellColour', (req, res) => {
+    const { _id, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('cells')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { backgroundColour: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: field + ' Updated sucessfully to ' + value });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+//Rows
+
+app.get('/rows', (req, res) => {
+    let rows = []
+    db.collection('rows')
+        .find()
+        .forEach(r => rows.push(r))
+        .then(() => {
+            res.status(200).json(rows)
+        })
+        .catch(() => {
+            res.status(500). json({error: 'Could not fetch Rows documents'})
+        })
+})
+
+app.get('/rows/:id', (req, res) => {
+
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('rows')
+        .findOne({_id: new ObjectId(req.params.id)})
+        .then(doc => {
+            res.status(200).json(doc)
+        })
+        .catch(() => {
+            res.status(500).json({error: 'Could not fetch Rows documents'})
+        })
+    } else {
+        res.status(500).json({error: 'not a valid Row id'})
+    }
+    
+})
+
+app.post('/postRow', (req, res) => {
+    const r = req.body;
+    db.collection('rows')
+    .insertOne(r)
+    .then(result => {
+        res.status(201).json(result)
+    })
+    .catch(err => {
+        res.status(500).json({err: 'Could not create a new Row document'})
+
+    })
+
+})
+
+app.post('/updateRow', (req, res) => {
+    const { _id, field, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('rows')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Document updated successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+//Cell Rows
+
+app.get('/cellRows', (req, res) => {
+    let cr = []
+    db.collection('cellrows')
+        .find()
+        .forEach(r => cr.push(r))
+        .then(() => {
+            res.status(200).json(cr)
+        })
+        .catch(() => {
+            res.status(500). json({error: 'Could not fetch Cell Rows documents'})
+        })
+})
+
+app.get('/cellRows/:id', (req, res) => {
+
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('cellrows')
+        .findOne({_id: new ObjectId(req.params.id)})
+        .then(doc => {
+            res.status(200).json(doc)
+        })
+        .catch(() => {
+            res.status(500).json({error: 'Could not fetch Cell Rows documents'})
+        })
+    } else {
+        res.status(500).json({error: 'not a valid Cell Row id'})
+    }
+    
+})
+
+app.post('/postCellRow', (req, res) => {
+    const cr = req.body;
+    db.collection('cellrows')
+    .insertOne(cr)
+    .then(result => {
+        res.status(201).json(result)
+    })
+    .catch(err => {
+        res.status(500).json({err: 'Could not create a new Cell Row document'})
+
+    })
+
+})
+
+app.post('/updateCellRow', (req, res) => {
+    const { _id, field, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('cellrows')
             .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
             .then(result => {
                 if (result.modifiedCount > 0) {
