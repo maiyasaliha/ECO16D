@@ -5,7 +5,7 @@ import NewSheet from "./components/NewSheet";
 function App() {
   return (
     <div >
-      <Spreadsheet />
+      <NewSheet />
     </div>
   );
 }

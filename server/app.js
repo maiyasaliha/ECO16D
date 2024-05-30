@@ -173,11 +173,11 @@ app.post('/updateCellText', (req, res) => {
             .updateOne({ _id: new ObjectId(_id) }, { $set: { value: value } })
             .then(result => {
                 if (result.modifiedCount > 0) {
-                    res.status(200).json({ message: field + ' Updated sucessfully to ' + value });
+                    res.status(200).json({ message: 'Value Updated successfully to ' + value });
                 }
             })
             .catch(err => {
-                res.status(500).json({ error: 'Could not update the document whyy chnage', details: err });
+                res.status(500).json({ error: 'Could not update the document', details: err });
             });
     } else {
         res.status(400).json({ error: 'Invalid document ID' });

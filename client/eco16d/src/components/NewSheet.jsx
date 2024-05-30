@@ -50,14 +50,13 @@ function NewSheet() {
     
             if (cellIndex !== -1) {
                 const updatedCellData = [...prevCellData];
-                updatedCellData[cellIndex].value = updatedCell.value; // This line updates the cell value
+                updatedCellData[cellIndex].value = updatedCell.value;
                 return updatedCellData;
             }
     
             return prevCellData;
         });
     };
-    
     
     
     const generateColDefs = async (data) => {
@@ -110,7 +109,6 @@ function NewSheet() {
             setColDefs(colDefs);
         }
     };
-    
 
     const fetchCellData = async (cellId) => {
         try {
@@ -125,9 +123,8 @@ function NewSheet() {
     const onCellValueChanged = (params) => {
         const updateData = {
             _id: params.data._id,
-            value: params.newValue
+            value: params.data[params.colDef.field]
         };
-        console.log(params)
         socket.emit('updateCell', updateData);
 
         axios.post('http://localhost:3001/updateCellText', updateData)
