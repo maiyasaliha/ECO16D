@@ -7,7 +7,7 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
 
-function SpreadsheetCopy() {
+function NewSheet() {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
     const [cellData, setCellData] = useState([]);
@@ -29,7 +29,6 @@ function SpreadsheetCopy() {
                     index: index + 1
                 }));
                 setRowData(data);
-                console.log("setting rows")
                 generateColDefs(data);
             })
             .catch(err => {
@@ -47,52 +46,57 @@ function SpreadsheetCopy() {
 
     const updateGridCell = (updatedCell) => {
         setCellData(prevCellData => {
-            const updatedCellData = [...prevCellData];
-            const cellIndex = updatedCellData.findIndex(cell => cell._id === updatedCell.cellId);
+            const cellIndex = prevCellData.findIndex(cell => cell._id === updatedCell._id);
+    
             if (cellIndex !== -1) {
-                updatedCellData[cellIndex].value = updatedCell.value;
+                const updatedCellData = [...prevCellData];
+                updatedCellData[cellIndex].value = updatedCell.value; // This line updates the cell value
+                return updatedCellData;
             }
-            return updatedCellData;
+    
+            return prevCellData;
         });
     };
     
     
+    
     const generateColDefs = async (data) => {
         if (data.length > 0) {
-            const firstRow = data[0];
-            const promises = firstRow.cells.map(async cell => {
-                const fetchedCellData = await fetchCellData(cell.cellId);
+            const keys = Object.keys(data[0]);
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'rowNumber' & key !== 'index');
+            const promises = filteredKeys.map(async key => {
+                const cellId = data[0][key];
+                const cellData = await fetchCellData(cellId);
                 return {
-                    field: cell.col,
+                    field: key,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-                    cellEditor: fetchedCellData.cellRenderer,
                     valueGetter: () => {
-                        return fetchedCellData.value ? fetchedCellData.value : '';
+                        return cellData ? cellData.value : '';
                     },
                     cellStyle: () => {
                         return {
-                            fontFamily: fetchedCellData.fontFamily,
-                            fontSize: fetchedCellData.fontSize,
-                            fontWeight: fetchedCellData.fontWeight,
-                            fontStyle: fetchedCellData.fontStyle,
-                            textDecoration: fetchedCellData.textDecoration,
-                            color: fetchedCellData.color,
-                            backgroundColor: fetchedCellData.backgroundColor,
-                            textAlign: fetchedCellData.textAlign,
-                            verticalAlign: fetchedCellData.verticalAlign,
-                            borderTop: fetchedCellData.borderTop,
-                            borderRight: fetchedCellData.borderRight,
-                            borderBottom: fetchedCellData.borderBottom,
-                            borderLeft: fetchedCellData.borderLeft,
-                            wrapText: fetchedCellData.wrapText
+                            fontFamily: cellData.fontFamily,
+                            fontSize: cellData.fontSize,
+                            fontWeight: cellData.fontWeight,
+                            fontStyle: cellData.fontStyle,
+                            textDecoration: cellData.textDecoration,
+                            color: cellData.color,
+                            backgroundColor: cellData.backgroundColor,
+                            textAlign: cellData.textAlign,
+                            verticalAlign: cellData.verticalAlign,
+                            borderTop: cellData.borderTop,
+                            borderRight: cellData.borderRight,
+                            borderBottom: cellData.borderBottom,
+                            borderLeft: cellData.borderLeft,
+                            wrapText: cellData.wrapText
                         };
                     }
                 };
             });
             const resolvedColDefs = await Promise.all(promises);
-            setColDefs([
+            const colDefs = [
                 {
                     headerName: '',
                     field: 'index',
@@ -102,16 +106,18 @@ function SpreadsheetCopy() {
                     sortable: false
                 },
                 ...resolvedColDefs
-            ]);
+            ];
+            setColDefs(colDefs);
         }
     };
+    
 
     const fetchCellData = async (cellId) => {
         try {
             const response = await axios.get(`http://localhost:3001/cell/${cellId}`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching cell data here:', error);
+            console.error('Error fetching cell data:', error);
             return null;
         }
     };
@@ -121,8 +127,7 @@ function SpreadsheetCopy() {
             _id: params.data._id,
             value: params.newValue
         };
-
-
+        console.log(params)
         socket.emit('updateCell', updateData);
 
         axios.post('http://localhost:3001/updateCellText', updateData)
@@ -157,4 +162,4 @@ function SpreadsheetCopy() {
   )
 }
 
-export default SpreadsheetCopy
+export default NewSheet

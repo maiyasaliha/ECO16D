@@ -21,7 +21,7 @@ function Spreadsheet() {
     }, []);
     
     useEffect(() => {
-        axios.get('http://localhost:3001/cellRows')
+        axios.get('http://localhost:3001/principale')
             .then(response => {
                 const data = response.data.map((row, index) => ({
                     ...row,
@@ -90,7 +90,7 @@ function Spreadsheet() {
 
         socket.emit('updateCell', updateData);
 
-        axios.post('http://localhost:3001/updateCellRow', updateData)
+        axios.post('http://localhost:3001/updatePrincipale', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
             })
