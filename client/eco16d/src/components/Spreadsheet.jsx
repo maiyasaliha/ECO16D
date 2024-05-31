@@ -19,9 +19,9 @@ function Spreadsheet() {
             socket.off('connect');
         };
     }, []);
-    
-    useEffect(() => {
-        axios.get('http://localhost:3001/principale')
+
+    const fetchData = () => {
+        axios.get('http://localhost:3001/cellRows')
             .then(response => {
                 const data = response.data.map((row, index) => ({
                     ...row,
@@ -33,6 +33,10 @@ function Spreadsheet() {
             .catch(err => {
                 console.log('Error fetching data:', err);
             });
+    }
+    
+    useEffect(() => {
+        fetchData();
         socket.on('cellUpdated', (updatedCell) => {
             updateGridCell(updatedCell);
         });
@@ -57,10 +61,40 @@ function Spreadsheet() {
         });
     };
     
-    const generateColDefs = (data) => {
+    const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
             const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index');
+            const promises = filteredKeys.map(async key => {
+                return {
+                    headerName: key,
+                    field: key,
+                    editable: true,
+                    filter: true,
+                    suppressMovable: true,
+                    valueGetter: (params) => params.data[key].value || '',
+                    cellStyle: (params) => {
+                        const style = params.data[key];
+                        return {
+                            fontFamily: style.fontFamily,
+                            fontSize: style.fontSize,
+                            fontWeight: style.fontWeight,
+                            fontStyle: style.fontStyle,
+                            textDecoration: style.textDecoration,
+                            color: style.color,
+                            backgroundColor: style.backgroundColor,
+                            textAlign: style.textAlign,
+                            verticalAlign: style.verticalAlign,
+                            borderTop: style.borderTop,
+                            borderRight: style.borderRight,
+                            borderBottom: style.borderBottom,
+                            borderLeft: style.borderLeft,
+                            wrapText: style.wrapText
+                        };
+                    }
+                };
+            });
+            const resolvedColDefs = await Promise.all(promises);
             const colDefs = [
                 {
                     headerName: '',
@@ -70,27 +104,24 @@ function Spreadsheet() {
                     width: 70,
                     sortable: false
                 },
-                ...filteredKeys.map(key => ({
-                    field: key,
-                    editable: true,
-                    filter: true,
-                    suppressMovable: true
-                }))
+                ...resolvedColDefs
             ];
             setColDefs(colDefs);
         }
     };
 
     const onCellValueChanged = (params) => {
+        const field = params.colDef.field;
         const updateData = {
             _id: params.data._id,
-            field: params.colDef.field,
-            value: params.newValue
+            field: field,
+            property: "value",
+            value: params.data[field]
         };
 
         socket.emit('updateCell', updateData);
 
-        axios.post('http://localhost:3001/updatePrincipale', updateData)
+        axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
             })

@@ -30,16 +30,23 @@ connectToDb((err) => {
             socket.on('updateCell', (data) => {
                 console.log('Received updateCell event:', data);
                 if (ObjectId.isValid(data._id)) {
-                    db.collection('principale')
-                        .updateOne({ _id: new ObjectId(data._id) }, { $set: { [data.field]: data.value } })
+                    const updateQuery = { $set: {} };
+                    updateQuery.$set[`${data.field}.value`] = data.value;
+
+                    db.collection('cellrows')
+                        .updateOne({ _id: new ObjectId(data._id) }, updateQuery)
                         .then(result => {
                             if (result.modifiedCount > 0) {
                                 socket.broadcast.emit('cellUpdated', data);
+                            } else {
+                                console.log('Document not found');
                             }
                         })
                         .catch(err => {
                             console.error('Error updating document:', err);
                         });
+                } else {
+                    console.error('Invalid document ID');
                 }
             });
         });
@@ -53,7 +60,6 @@ connectToDb((err) => {
         console.error('Failed to connect to database:', err);
     }
 });
-
 
 app.get('/principale', (req, res) => {
     let principals = []
@@ -117,3 +123,89 @@ app.post('/updatePrincipale', (req, res) => {
         res.status(400).json({ error: 'Invalid document ID' });
     }
 });
+
+app.get('/cellRows', (req, res) => {
+    let cr = []
+    db.collection('cellrows')
+        .find()
+        .forEach(r => cr.push(r))
+        .then(() => {
+            res.status(200).json(cr)
+        })
+        .catch(() => {
+            res.status(500). json({error: 'Could not fetch Cell Rows documents'})
+        })
+})
+
+app.get('/cellRows/:id', (req, res) => {
+
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('cellrows')
+        .findOne({_id: new ObjectId(req.params.id)})
+        .then(doc => {
+            res.status(200).json(doc)
+        })
+        .catch(() => {
+            res.status(500).json({error: 'Could not fetch Cell Rows documents'})
+        })
+    } else {
+        res.status(500).json({error: 'not a valid Cell Row id'})
+    }
+    
+})
+
+app.post('/postCellRow', (req, res) => {
+    const cr = req.body;
+    db.collection('cellrows')
+    .insertOne(cr)
+    .then(result => {
+        res.status(201).json(result)
+    })
+    .catch(err => {
+        res.status(500).json({err: 'Could not create a new Cell Row document'})
+
+    })
+
+})
+
+app.post('/updateCellRow', (req, res) => {
+    const { _id, field, value } = req.body;
+    
+    if (ObjectId.isValid(_id)) {
+        db.collection('cellrows')
+            .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Document updated successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+app.post('/updateCellProperty', (req, res) => {
+    const { _id, field, property, value } = req.body;
+
+    if (ObjectId.isValid(_id)) {
+        const updateQuery = { $set: {} };
+        updateQuery.$set[`${field}.${property}`] = value;
+
+        db.collection('cellrows')
+            .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Property ' + property + ' updated to ' + value + ' successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the property', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
