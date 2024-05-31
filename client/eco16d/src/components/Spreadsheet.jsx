@@ -13,21 +13,31 @@ function Spreadsheet() {
 
     useEffect(() => {
         socket.on('connect', () => {
+            console.log("connected to socket");
         });
-    
+
+        socket.on('cellUpdated', (updatedCell) => {
+            fetchData();
+        });
+
         return () => {
+            console.log("disconnecting from socket");
             socket.off('connect');
+            socket.off('cellUpdated');
         };
     }, []);
 
     const fetchData = () => {
+        console.log("fetching data")
         axios.get('http://localhost:3001/cellRows')
             .then(response => {
                 const data = response.data.map((row, index) => ({
                     ...row,
                     index: index + 1
                 }));
+                console.log("setting row data")
                 setRowData(data);
+                console.log("generating col defs")
                 generateColDefs(data);
             })
             .catch(err => {
@@ -37,17 +47,11 @@ function Spreadsheet() {
     
     useEffect(() => {
         fetchData();
-        socket.on('cellUpdated', (updatedCell) => {
-            updateGridCell(updatedCell);
-        });
-    
-        return () => {
-            socket.off('cellUpdated');
-        };
     }, []);
     
 
     const updateGridCell = (updatedCell) => {
+        console.log("updating grid cell")
         setRowData(prevRowData => {
             const rowIndex = prevRowData.findIndex(row => row._id === updatedCell._id);
     
@@ -111,6 +115,7 @@ function Spreadsheet() {
     };
 
     const onCellValueChanged = (params) => {
+        console.log("cell value changed")
         const field = params.colDef.field;
         const updateData = {
             _id: params.data._id,
@@ -119,7 +124,7 @@ function Spreadsheet() {
             value: params.data[field]
         };
 
-        socket.emit('updateCell', updateData);
+        console.log("emitting to all cells")
 
         axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
@@ -128,6 +133,9 @@ function Spreadsheet() {
             .catch(err => {
                 console.log('Error updating data:', err);
             });
+        
+        socket.emit('updateCell', updateData);
+        fetchData();
     };
 
     const cellStyle = {
