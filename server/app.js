@@ -351,3 +351,22 @@ app.post('/updateCellRow', (req, res) => {
         res.status(400).json({ error: 'Invalid document ID' });
     }
 });
+
+app.get('/cellRow/:id/:field', (req, res) => {
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('cellrows')
+            .findOne({ _id: new ObjectId(req.params.id) })
+            .then(doc => {
+                if (doc && req.params.field in doc) {
+                    res.status(200).json({ value: doc[req.params.field] });
+                } else {
+                    res.status(404).json({ error: 'Field not found in document' });
+                }
+            })
+            .catch(() => {
+                res.status(500).json({ error: 'Could not fetch document' });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});

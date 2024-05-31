@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
@@ -10,7 +10,6 @@ const socket = io('http://localhost:3001');
 function NewSheet() {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
-    const [cellData, setCellData] = useState([]);
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -22,6 +21,17 @@ function NewSheet() {
     }, []);
     
     useEffect(() => {
+        fetchData();
+        socket.on('cellUpdated', (updatedCell) => {
+            updateGridCell(updatedCell);
+        });
+    
+        return () => {
+            socket.off('cellUpdated');
+        };
+    }, []);
+
+    const fetchData = () => {
         axios.get('http://localhost:3001/cellRows')
             .then(response => {
                 const data = response.data.map((row, index) => ({
@@ -34,31 +44,22 @@ function NewSheet() {
             .catch(err => {
                 console.log('Error fetching data:', err);
             });
-        socket.on('cellUpdated', (updatedCell) => {
-            updateGridCell(updatedCell);
-        });
-    
-        return () => {
-            socket.off('cellUpdated');
-        };
-    }, []);
-    
+    };
 
     const updateGridCell = (updatedCell) => {
-        setCellData(prevCellData => {
-            const cellIndex = prevCellData.findIndex(cell => cell._id === updatedCell._id);
-    
-            if (cellIndex !== -1) {
-                const updatedCellData = [...prevCellData];
-                updatedCellData[cellIndex].value = updatedCell.value;
-                return updatedCellData;
-            }
-    
-            return prevCellData;
+        setRowData(prevRowData => {
+            return prevRowData.map(row => {
+                if (row._id === updatedCell._id) {
+                    return {
+                        ...row,
+                        [updatedCell.field]: updatedCell.value
+                    };
+                }
+                return row;
+            });
         });
     };
-    
-    
+
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
@@ -120,16 +121,34 @@ function NewSheet() {
         }
     };
 
-    const onCellValueChanged = (params) => {
-        const updateData = {
+    const fetchCellId = async (cellId, field) => {
+        try {
+            const response = await axios.get(`http://localhost:3001/cellRow/${cellId}/${field}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching cell data:', error);
+            return null;
+        }
+    };
+
+    const onCellValueChanged = async (params) => {
+        const updateCellRowData = {
             _id: params.data._id,
+            field: params.colDef.field
+        };
+        const cellId = await fetchCellId(updateCellRowData._id, updateCellRowData.field);
+        
+        const updateData = {
+            _id: cellId.value,
             value: params.data[params.colDef.field]
         };
+
         socket.emit('updateCell', updateData);
 
         axios.post('http://localhost:3001/updateCellText', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
+                fetchData();
             })
             .catch(err => {
                 console.log('Error updating data:', err);
@@ -159,4 +178,4 @@ function NewSheet() {
   )
 }
 
-export default NewSheet
+export default NewSheet;
