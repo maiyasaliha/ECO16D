@@ -30,8 +30,8 @@ connectToDb((err) => {
             socket.on('updateCell', (data) => {
                 console.log('Received updateCell event:', data);
                 if (ObjectId.isValid(data._id)) {
-                    db.collection('cells')
-                        .updateOne({ _id: data._id }, { $set: { value: data.value } })
+                    db.collection('cellrows')
+                        .updateOne({ _id: data._id }, { $set: { [data.field]: data.value } })
                         .then(result => {
                             if (result.modifiedCount > 0) {
                                 socket.broadcast.emit('cellUpdated', data);
@@ -342,6 +342,30 @@ app.post('/updateCellRow', (req, res) => {
             .then(result => {
                 if (result.modifiedCount > 0) {
                     res.status(200).json({ message: 'Document updated successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the document', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});
+
+app.post('/updateCellRowText', (req, res) => {
+    const { _id, field, value } = req.body;
+
+    if (ObjectId.isValid(_id)) {
+        const updateQuery = { $set: {} };
+        updateQuery.$set[field] = value;
+
+        db.collection('cellrows')
+            .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'Document updated successfully' });
+                } else {
+                    res.status(404).json({ error: 'Document not found' });
                 }
             })
             .catch(err => {

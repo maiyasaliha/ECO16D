@@ -10,7 +10,6 @@ const socket = io('http://localhost:3001');
 function SpreadsheetCopy() {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
-    const [cellData, setCellData] = useState([]);
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -29,7 +28,6 @@ function SpreadsheetCopy() {
                     index: index + 1
                 }));
                 setRowData(data);
-                console.log("setting rows")
                 generateColDefs(data);
             })
             .catch(err => {
@@ -46,53 +44,54 @@ function SpreadsheetCopy() {
     
 
     const updateGridCell = (updatedCell) => {
-        setCellData(prevCellData => {
-            const updatedCellData = [...prevCellData];
-            const cellIndex = updatedCellData.findIndex(cell => cell._id === updatedCell.cellId);
-            if (cellIndex !== -1) {
-                updatedCellData[cellIndex].value = updatedCell.value;
+        setRowData(prevRowData => {
+            const rowIndex = prevRowData.findIndex(row => row._id === updatedCell._id);
+    
+            if (rowIndex !== -1) {
+                const updatedRowData = [...prevRowData];
+                updatedRowData[rowIndex][updatedCell.field] = updatedCell.value;
+                return updatedRowData;
             }
-            return updatedCellData;
+    
+            return prevRowData;
         });
     };
     
-    
     const generateColDefs = async (data) => {
         if (data.length > 0) {
-            const firstRow = data[0];
-            const promises = firstRow.cells.map(async cell => {
-                const fetchedCellData = await fetchCellData(cell.cellId);
+            const keys = Object.keys(data[0]);
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index');
+            const promises = filteredKeys.map(async key => {
                 return {
-                    field: cell.col,
+                    headerName: key,
+                    field: key,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-                    cellEditor: fetchedCellData.cellRenderer,
-                    valueGetter: () => {
-                        return fetchedCellData.value ? fetchedCellData.value : '';
-                    },
-                    cellStyle: () => {
+                    valueGetter: (params) => params.data[key].value || '',
+                    cellStyle: (params) => {
+                        const style = params.data[key];
                         return {
-                            fontFamily: fetchedCellData.fontFamily,
-                            fontSize: fetchedCellData.fontSize,
-                            fontWeight: fetchedCellData.fontWeight,
-                            fontStyle: fetchedCellData.fontStyle,
-                            textDecoration: fetchedCellData.textDecoration,
-                            color: fetchedCellData.color,
-                            backgroundColor: fetchedCellData.backgroundColor,
-                            textAlign: fetchedCellData.textAlign,
-                            verticalAlign: fetchedCellData.verticalAlign,
-                            borderTop: fetchedCellData.borderTop,
-                            borderRight: fetchedCellData.borderRight,
-                            borderBottom: fetchedCellData.borderBottom,
-                            borderLeft: fetchedCellData.borderLeft,
-                            wrapText: fetchedCellData.wrapText
+                            fontFamily: style.fontFamily,
+                            fontSize: style.fontSize,
+                            fontWeight: style.fontWeight,
+                            fontStyle: style.fontStyle,
+                            textDecoration: style.textDecoration,
+                            color: style.color,
+                            backgroundColor: style.backgroundColor,
+                            textAlign: style.textAlign,
+                            verticalAlign: style.verticalAlign,
+                            borderTop: style.borderTop,
+                            borderRight: style.borderRight,
+                            borderBottom: style.borderBottom,
+                            borderLeft: style.borderLeft,
+                            wrapText: style.wrapText
                         };
                     }
                 };
             });
             const resolvedColDefs = await Promise.all(promises);
-            setColDefs([
+            const colDefs = [
                 {
                     headerName: '',
                     field: 'index',
@@ -102,30 +101,22 @@ function SpreadsheetCopy() {
                     sortable: false
                 },
                 ...resolvedColDefs
-            ]);
-        }
-    };
-
-    const fetchCellData = async (cellId) => {
-        try {
-            const response = await axios.get(`http://localhost:3001/cell/${cellId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching cell data here:', error);
-            return null;
+            ];
+            setColDefs(colDefs);
         }
     };
 
     const onCellValueChanged = (params) => {
         const updateData = {
             _id: params.data._id,
-            value: params.newValue
+            field: params.colDef.field,
+            value: params[params.colDef.field]
         };
-
+        console.log(params)
 
         socket.emit('updateCell', updateData);
 
-        axios.post('http://localhost:3001/updateCellText', updateData)
+        axios.post('http://localhost:3001/updateCellRowText', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
             })

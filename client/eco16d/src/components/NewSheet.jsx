@@ -148,7 +148,14 @@ function NewSheet() {
         axios.post('http://localhost:3001/updateCellText', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
-                fetchData();
+                // updateGridCell(
+                //     {
+                //      _id: params.data._id, 
+                //      field: params.colDef.field, 
+                //      cellId: cellId.value,
+                //      value: params.data[params.colDef.field] 
+                //     }
+                // );
             })
             .catch(err => {
                 console.log('Error updating data:', err);
@@ -178,4 +185,4 @@ function NewSheet() {
   )
 }
 
-export default NewSheet;
+export default NewSheet
