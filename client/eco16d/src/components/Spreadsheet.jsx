@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
@@ -7,40 +7,35 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
 
-function Spreadsheet() {
+function Spreadsheet({ selectedCell, 
+    setSelectedCell, bgcolor, color, clear, setClear, bold, setBold, italic, 
+    setItalic, underline, setUnderline, strikeThrough, setStrikeThrough }) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
     useEffect(() => {
-        socket.on('connect', () => {
-            console.log("connected to socket");
-        });
+        socket.on('connect', () => {});
 
         const handleCellUpdated = (updatedCell) => {
-            console.log('Received cellUpdated event:', updatedCell);
             fetchData();
         };
 
         socket.on('cellUpdated', handleCellUpdated);
 
         return () => {
-            console.log("disconnecting from socket");
             socket.off('connect');
             socket.off('cellUpdated', handleCellUpdated);
         };
     }, []);
 
     const fetchData = () => {
-        console.log("fetching data")
         axios.get('http://localhost:3001/cellRows')
             .then(response => {
                 const data = response.data.map((row, index) => ({
                     ...row,
                     index: index + 1
                 }));
-                console.log("setting row data")
                 setRowData(data);
-                console.log("generating col defs")
                 generateColDefs(data);
             })
             .catch(err => {
@@ -55,7 +50,7 @@ function Spreadsheet() {
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
-            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index');
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined');
             const promises = filteredKeys.map(async key => {
                 return {
                     headerName: key,
@@ -102,7 +97,6 @@ function Spreadsheet() {
     };
 
     const onCellValueChanged = (params) => {
-        console.log("cell value changed")
         const field = params.colDef.field;
         const updateData = {
             _id: params.data._id,
@@ -111,11 +105,8 @@ function Spreadsheet() {
             value: params.data[field]
         };
 
-        console.log("emitting to all cells")
-
         axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
-                console.log("Data updated successfully:", response.data);
                 socket.emit('updateCell', updateData);
                 fetchData();
             })
@@ -124,27 +115,180 @@ function Spreadsheet() {
             });
     };
 
+    const onCellClicked = (params) => {
+        const colId = params.column.getId();
+        const cellData = params.data[colId];
+        setSelectedCell({
+            rowIndex: params.rowIndex,
+            colId: colId,
+            data: cellData ? cellData.value : null,
+            _id: params.data._id
+        });
+    };
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'backgroundColor',
+                value: bgcolor
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [bgcolor]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && color) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'color',
+                value: color
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [color]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && bold) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'fontWeight',
+                value: 'bold'
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+            setBold(false);
+        }
+    }, [bold]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && italic) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'fontStyle',
+                value: 'italic'
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+            setItalic(false);
+        }
+    }, [italic]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && underline) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'textDecoration',
+                value: 'underline'
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+            setUnderline(false);
+        }
+    }, [underline]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && strikeThrough) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'textDecoration',
+                value: 'line-through'
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+            setStrikeThrough(false);
+        }
+    }, [strikeThrough]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && clear) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId
+            };
+            axios.post('http://localhost:3001/clearCellProperty', updateData)
+            .then(response => {
+                console.log(response.data.message);
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error clearing formatting:', error);
+            });
+        } else {
+        }
+        setClear(false);
+    }, [clear]);
+    
     const cellStyle = {
         borderRight: '1px solid #ccc',
         borderBottom: '1px solid #ccc'
     };
 
-  return (
-    <div
-  className="ag-theme-quartz"
-  style={{ height: '100vh', width: '100%' }}
- >
-   <AgGridReact
-       rowData={rowData}
-       columnDefs={colDefs}
-       rowSelection={'multiple'}
-       defaultColDef={{ cellStyle, editable: true }}
-       onCellValueChanged={onCellValueChanged}
-       columnHoverHighlight={true}
-       suppressDragLeaveHidesColumns={true}
-   />
- </div>
-  )
+    return (
+        <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
+            <AgGridReact
+                rowData={rowData}
+                columnDefs={colDefs}
+                rowSelection={'multiple'}
+                defaultColDef={{ cellStyle, editable: true }}
+                onCellValueChanged={onCellValueChanged}
+                onCellClicked={onCellClicked}
+                columnHoverHighlight={true}
+                suppressDragLeaveHidesColumns={true}
+            />
+        </div>
+    );
 }
 
-export default Spreadsheet
+export default Spreadsheet;

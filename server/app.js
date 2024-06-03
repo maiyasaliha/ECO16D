@@ -31,7 +31,7 @@ connectToDb((err) => {
                 console.log('Received updateCell event:', data);
                 if (ObjectId.isValid(data._id)) {
                     const updateQuery = { $set: {} };
-                    updateQuery.$set[`${data.field}.value`] = data.value;
+                    updateQuery.$set[`${data.field.property}`] = data.value;
 
                     db.collection('cellrows')
                         .updateOne({ _id: new ObjectId(data._id) }, updateQuery)
@@ -205,3 +205,56 @@ app.post('/updateCellProperty', (req, res) => {
     }
 });
 
+app.post('/clearCellProperty', (req, res) => {
+    const { _id, field } = req.body;
+
+    if (!ObjectId.isValid(_id)) {
+        res.status(400).json({ error: 'Invalid document ID' });
+        return;
+    }
+
+    if (!field) {
+        res.status(400).json({ error: 'Field name is required' });
+        return;
+    }
+
+    const defaultFormatting = {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
+        color: "#000000",
+        backgroundColor: "#ffffff",
+        textAlign: "left",
+        verticalAlign: "middle",
+        borderTop: null,
+        borderRight: "1px solid #ccc",
+        borderBottom: "1px solid #ccc",
+        borderLeft: null,
+        wrapText: false,
+        format: "text",
+        locked: null,
+        cellRenderer: "agTextCellEditor"
+    };
+
+    const updateQuery = {
+        $set: {}
+    };
+    for (const key in defaultFormatting) {
+        updateQuery.$set[`${field}.${key}`] = defaultFormatting[key];
+    }
+
+    db.collection('cellrows')
+        .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+        .then(result => {
+            if (result.modifiedCount > 0) {
+                res.status(200).json({ message: 'Formatting set to default for field ' + field + ' in cell ' + _id });
+            } else {
+                res.status(404).json({ error: 'Document not found' });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
+        });
+});

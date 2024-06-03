@@ -1,17 +1,17 @@
 import React from 'react';
+import BoldImg from '../icons/bold-svgrepo-com.svg'
 
-function BoldButton() {
+function BoldButton({selectedCell, setBold}) {
   const handleBold = () => {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) return;
-
-    const isBold = document.queryCommandState('bold');
-
-    document.execCommand('bold', false, !isBold);
-  };
+if (selectedCell) {
+      setBold(true);
+    }
+}
 
   return (
-    <button onClick={handleBold}>Bold</button>
+    <button onClick={handleBold}>
+      <img src={BoldImg} style={{ width: '18px', height: '18px' }}/>
+    </button>
   );
 }
 
