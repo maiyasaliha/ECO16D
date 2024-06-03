@@ -35,13 +35,9 @@ connectToDb((err) => {
 
                     db.collection('cellrows')
                         .updateOne({ _id: new ObjectId(data._id) }, updateQuery)
-                        .then(result => {
-                            if (result.modifiedCount > 0) {
-                                socket.broadcast.emit('cellUpdated', data);
-                            } else {
-                                console.log('Document not found');
-                            }
-                        })
+                        .then(
+                            socket.broadcast.emit('cellUpdated', data)
+                        )
                         .catch(err => {
                             console.error('Error updating document:', err);
                         });

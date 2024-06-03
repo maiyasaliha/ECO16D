@@ -16,14 +16,17 @@ function Spreadsheet() {
             console.log("connected to socket");
         });
 
-        socket.on('cellUpdated', (updatedCell) => {
+        const handleCellUpdated = (updatedCell) => {
+            console.log('Received cellUpdated event:', updatedCell);
             fetchData();
-        });
+        };
+
+        socket.on('cellUpdated', handleCellUpdated);
 
         return () => {
             console.log("disconnecting from socket");
             socket.off('connect');
-            socket.off('cellUpdated');
+            socket.off('cellUpdated', handleCellUpdated);
         };
     }, []);
 
@@ -48,22 +51,6 @@ function Spreadsheet() {
     useEffect(() => {
         fetchData();
     }, []);
-    
-
-    const updateGridCell = (updatedCell) => {
-        console.log("updating grid cell")
-        setRowData(prevRowData => {
-            const rowIndex = prevRowData.findIndex(row => row._id === updatedCell._id);
-    
-            if (rowIndex !== -1) {
-                const updatedRowData = [...prevRowData];
-                updatedRowData[rowIndex][updatedCell.field] = updatedCell.value;
-                return updatedRowData;
-            }
-    
-            return prevRowData;
-        });
-    };
     
     const generateColDefs = async (data) => {
         if (data.length > 0) {
@@ -129,13 +116,12 @@ function Spreadsheet() {
         axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
                 console.log("Data updated successfully:", response.data);
+                socket.emit('updateCell', updateData);
+                fetchData();
             })
             .catch(err => {
                 console.log('Error updating data:', err);
             });
-        
-        socket.emit('updateCell', updateData);
-        fetchData();
     };
 
     const cellStyle = {
