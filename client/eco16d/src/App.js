@@ -33,6 +33,7 @@ function App() {
 
     return (
         <div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
             <ColourPicker 
                 selectedCell={selectedCell} 
                 color={bgcolor} 
@@ -64,6 +65,7 @@ function App() {
                 setStrikeThrough={setStrikeThrough}
             />
             <SizeButton />
+          </div>
             <Spreadsheet 
                 selectedCell={selectedCell} 
                 setSelectedCell={setSelectedCell} 
