@@ -30,8 +30,7 @@ function App() {
     const [b, setB] = useState(0);
     const [i, setI] = useState(0);
     const [s, setS] = useState(0);
-
-
+    const [u, setU] = useState(0);
 
     return (
         <div>
@@ -63,6 +62,7 @@ function App() {
             <UnderlineButton 
                 selectedCell={selectedCell}
                 setUnderline={setUnderline}
+                setU={setU}
             />
             <StrikethroughButton 
                 selectedCell={selectedCell}
@@ -84,10 +84,9 @@ function App() {
                 italic={italic}
                 i={i}
                 underline={underline}
-                setUnderline={setUnderline}
+                u={u}
                 strikeThrough={strikeThrough}
                 s={s}
-                setStrikeThrough={setStrikeThrough}
             />
         </div>
     );
