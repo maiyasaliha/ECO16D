@@ -17,7 +17,7 @@ function App() {
     const [fontFamily, setFontFamily] = useState('Arial');
     const [fontSize, setFontSize] = useState(14);
     const [italic, setItalic] = useState(false);
-    const [bold, setBold] = useState(false);
+    const [bold, setBold] = useState("normal");
     const [underline, setUnderline] = useState(false);
     const [strikeThrough, setStrikeThrough] = useState(false);
     const [textDecoration, setTextDecoration] = useState('none');
@@ -28,6 +28,7 @@ function App() {
     const [locked, setLocked] = useState(false);
     const [cellRenderer, setCellRenderer] = useState(false);
     const [clear, setClear] = useState(false);
+    const [b, setB] = useState(0);
 
 
 
@@ -50,7 +51,10 @@ function App() {
             />
             <BoldButton 
                 selectedCell={selectedCell}
+                bold={bold}
                 setBold={setBold}
+                b={b}
+                setB={setB}
             />
             <ItalicButton 
                 selectedCell={selectedCell}
@@ -75,6 +79,7 @@ function App() {
                 setClear={setClear}
                 bold={bold}
                 setBold={setBold}
+                b={b}
                 italic={italic}
                 setItalic={setItalic}
                 underline={underline}
