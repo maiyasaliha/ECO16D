@@ -8,8 +8,8 @@ import io from 'socket.io-client';
 const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
-    setSelectedCell, bgcolor, color, clear, setClear, bold, setBold, italic, 
-    setItalic, underline, setUnderline, strikeThrough, setStrikeThrough, b }) {
+    setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
+    setItalic, underline, setUnderline, strikeThrough, setStrikeThrough, b, i }) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -188,12 +188,12 @@ function Spreadsheet({ selectedCell,
     }, [b]);
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && italic) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && italic && i) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
                 property: 'fontStyle',
-                value: 'italic'
+                value: italic
             };
 
             axios.post('http://localhost:3001/updateCellProperty', updateData)
@@ -204,9 +204,8 @@ function Spreadsheet({ selectedCell,
                 .catch(err => {
                     console.log('Error updating data:', err);
                 });
-            setItalic(false);
         }
-    }, [italic]);
+    }, [i]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && underline) {

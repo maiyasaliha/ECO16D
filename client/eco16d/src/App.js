@@ -29,6 +29,8 @@ function App() {
     const [cellRenderer, setCellRenderer] = useState(false);
     const [clear, setClear] = useState(false);
     const [b, setB] = useState(0);
+    const [i, setI] = useState(0);
+
 
 
 
@@ -51,14 +53,13 @@ function App() {
             />
             <BoldButton 
                 selectedCell={selectedCell}
-                bold={bold}
                 setBold={setBold}
-                b={b}
                 setB={setB}
             />
             <ItalicButton 
                 selectedCell={selectedCell}
                 setItalic={setItalic}
+                setI={setI}
             />
             <UnderlineButton 
                 selectedCell={selectedCell}
@@ -78,10 +79,9 @@ function App() {
                 clear={clear}
                 setClear={setClear}
                 bold={bold}
-                setBold={setBold}
                 b={b}
                 italic={italic}
-                setItalic={setItalic}
+                i={i}
                 underline={underline}
                 setUnderline={setUnderline}
                 strikeThrough={strikeThrough}

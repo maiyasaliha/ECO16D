@@ -2,7 +2,7 @@ import React from 'react';
 import BoldImg from '../icons/bold-svgrepo-com.svg'
 import axios from 'axios';
 
-function BoldButton({ selectedCell, b, setB, setBold }) {
+function BoldButton({ selectedCell, setB, setBold }) {
   const handleBold = () => {
     if (selectedCell) {
       fetchBold();
