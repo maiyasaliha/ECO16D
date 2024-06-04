@@ -13,23 +13,17 @@ const styles = {
 }
 
 const options = [
-  'agTextCellEditor', 
-  'agCheckboxCellEditor', 
-  'agDateCellEditor', 
-  'agDateStringCellEditor', 
-  'agLargeTextCellEditor',
-  'agSelectCellEditor',
-  'agNumberCellEditor'
+  'text', 'number', 'boolean', 'date', 'dateString'
 ];
 
 const defaultOption = options[0];
 
-function CellRendererButton({ selectedCell, setR, setCellRenderer }) {
+function CellFormatButton({ selectedCell, setF, setFormat }) {
     
-    const handleRenderChange = (render) => {
+    const handleFormatChange = (format) => {
         if (selectedCell) {
-            setCellRenderer(render);
-            console.log(render)
+            setFormat(format);
+            console.log(format)
         }
     };
 
@@ -49,9 +43,9 @@ function CellRendererButton({ selectedCell, setR, setCellRenderer }) {
 
     return (
         <div>
-            <Dropdown options={options} onChange={handleRenderChange} value={defaultOption} />
+            <Dropdown options={options} onChange={handleFormatChange} value={defaultOption} />
         </div>
     );
 }
 
-export default CellRendererButton;
+export default CellFormatButton;

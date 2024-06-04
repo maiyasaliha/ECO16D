@@ -59,7 +59,7 @@ function Spreadsheet({ selectedCell,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-                    cellClass: (params) => params.data[key].wrapText ? 'wrap-text' : '',
+                    cellDataType: (params) => params.data[key].format,
                     valueGetter: (params) => params.data[key].value || '',
                     cellStyle: (params) => {
                         const style = params.data[key];

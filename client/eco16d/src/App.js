@@ -11,6 +11,8 @@ import StrikethroughButton from './components/tools/StrikethroughButton';
 import FontPickerButton from './components/tools/FontPickerButton';
 import WrapTextButton from './components/tools/WrapTextButton';
 import TextAlignButton from './components/tools/TextAlignButton';
+import CellFormatButton from './components/tools/CellFormatButton';
+import CellRendererButton from './components/tools/CellRendererButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -38,7 +40,9 @@ function App() {
 
     return (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', 
+          justifyContent: 'space-evenly', margin: '20px', alignItems: 'center', 
+          backgroundColor: '#e5f3fd', paddingRight: '30px', borderRadius: '30px', width: '90%', alignSelf: 'center'}}>
             <FontPickerButton 
                 selectedCell={selectedCell}
                 fontFamily={fontFamily}
@@ -93,6 +97,14 @@ function App() {
                 setTextAlign={setTextAlign}
                 a={a}
                 setA={setA}
+            />
+            <CellFormatButton 
+                selectedCell={selectedCell}
+                setFormat={setFormat}
+            />
+            <CellRendererButton 
+                selectedCell={selectedCell}
+                setCellRenderer={setCellRenderer}
             />
           </div>
             <Spreadsheet 

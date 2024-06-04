@@ -49,7 +49,7 @@ function SizeButton({ selectedCell, fontSize, setFontSize }) {
           min={1}
           max={100}
           step={1}
-          style={{ marginTop: '10px', padding: '5px', width: '50px' }}
+          style={{ marginTop: '10px', padding: '5px', width: '50px', marginBottom: '10px' }}
         />
     </div>
   );

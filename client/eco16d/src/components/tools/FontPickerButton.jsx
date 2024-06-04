@@ -25,7 +25,7 @@ function FontPickerButton({ selectedCell, fontFamily, setFontFamily }) {
     return (
         <div>
             <button onClick={togglePicker} style={styles}>
-                <img src={FontImg} style={{ width: '150px', height: '18px'}}/>
+                <img src={FontImg} style={{ width: '100px', height: '18px'}}/>
             </button>
             {showPicker && (
                 <FontPicker
