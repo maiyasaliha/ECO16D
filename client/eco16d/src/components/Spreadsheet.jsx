@@ -10,7 +10,7 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u, fontFamily, w, wrapText, fontSize, setFontSize }) {
+    underline, strikeThrough, b, i, s, u, fontFamily, w, wrapText, fontSize, textAlign, a }) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -326,6 +326,28 @@ function Spreadsheet({ selectedCell,
         }
         setClear(false);
     }, [clear]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && textAlign && a) {
+            console.log("textAlign is " + textAlign)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'textAlign',
+                value: textAlign
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                console.log(response.data.message);
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error clearing formatting:', error);
+            });
+        } else {
+        }
+    }, [a]);
     
     const cellStyle = {
         borderRight: '1px solid #ccc',

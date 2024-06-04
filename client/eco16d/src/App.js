@@ -10,6 +10,7 @@ import UnderlineButton from './components/tools/UnderlineButton';
 import StrikethroughButton from './components/tools/StrikethroughButton';
 import FontPickerButton from './components/tools/FontPickerButton';
 import WrapTextButton from './components/tools/WrapTextButton';
+import TextAlignButton from './components/tools/TextAlignButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -27,6 +28,7 @@ function App() {
     const [s, setS] = useState(0);
     const [u, setU] = useState(0);
     const [w, setW] = useState(0);
+    const [a, setA] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
     const [verticalAlign, setVerticalAlign] = useState('middle');
@@ -75,7 +77,6 @@ function App() {
                 selectedCell={selectedCell}
                 setStrikeThrough={setStrikeThrough}
                 setS={setS}
-
             />
             <SizeButton 
                 selectedCell={selectedCell}
@@ -86,6 +87,12 @@ function App() {
                 selectedCell={selectedCell}
                 setW={setW}
                 setWrapText={setWrapText}
+            />
+            <TextAlignButton 
+                selectedCell={selectedCell}
+                setTextAlign={setTextAlign}
+                a={a}
+                setA={setA}
             />
           </div>
             <Spreadsheet 
@@ -108,6 +115,8 @@ function App() {
                 wrapText={wrapText}
                 fontSize={fontSize}
                 setFontSize={setFontSize}
+                textAlign={textAlign}
+                a={a}
             />
         </div>
     );
