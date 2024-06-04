@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ClearFormatImg from "../icons/clear-formatting-svgrepo-com.svg"
+
+const styles = {
+    backgroundColor: 'transparent',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+}
 
 function ClearFormatting({ selectedCell, setClear }) {
     const onChangeHandler = () => {
-        setClear(true);
-    };
-
-    useEffect(() => {
         if (selectedCell) {
-            console.log(`Selected cell at row ${selectedCell.rowIndex}, column ${selectedCell.colId}`);
+            setClear(true);
         }
-    }, [selectedCell]);
+    };
 
     return (
         <div>
-            <button onClick={onChangeHandler}>
+            <button onClick={onChangeHandler} style={styles}>
                 <img src={ClearFormatImg} style={{ width: '18px', height: '18px' }}/>
             </button>
         </div>

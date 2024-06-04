@@ -2,6 +2,13 @@ import React from 'react';
 import BoldImg from '../icons/bold-svgrepo-com.svg'
 import axios from 'axios';
 
+const styles = {
+  backgroundColor: 'transparent',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+}
+
 function BoldButton({ selectedCell, setB, setBold }) {
   const handleBold = () => {
     if (selectedCell) {
@@ -24,7 +31,7 @@ function BoldButton({ selectedCell, setB, setBold }) {
   }
 
   return (
-    <button onClick={handleBold}>
+    <button onClick={handleBold} style={styles}>
       <img src={BoldImg} style={{ width: '18px', height: '18px' }} />
     </button>
   );

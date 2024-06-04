@@ -2,6 +2,13 @@ import React from 'react'
 import StrikeImg from '../icons/strikethrough-svgrepo-com.svg'
 import axios from 'axios';
 
+const styles = {
+  backgroundColor: 'transparent',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+}
+
 function StrikethroughButton({selectedCell, setS, setStrikeThrough}) {
   const handleStrike = () => {
     if (selectedCell) {
@@ -24,7 +31,7 @@ function StrikethroughButton({selectedCell, setS, setStrikeThrough}) {
   }
 
   return (
-    <button onClick={handleStrike}>
+    <button onClick={handleStrike} style={styles}>
       <img src={StrikeImg} style={{ width: '18px', height: '18px' }}/>
     </button>
   )

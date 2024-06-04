@@ -2,6 +2,13 @@ import React from 'react'
 import UnderlineImg from '../icons/format-underline-svgrepo-com.svg'
 import axios from 'axios';
 
+const styles = {
+  backgroundColor: 'transparent',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+}
+
 function UnderlineButton({selectedCell, setU, setUnderline}) {
   const handleUnderline = () => {
     if (selectedCell) {
@@ -23,7 +30,7 @@ function UnderlineButton({selectedCell, setU, setUnderline}) {
   }
 
   return (
-    <button onClick={handleUnderline}>
+    <button onClick={handleUnderline} style={styles}>
       <img src={UnderlineImg} style={{ width: '18px', height: '18px' }}/>
     </button>
   )

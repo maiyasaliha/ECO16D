@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SketchPicker } from 'react-color';
-import FontImg from '../icons/font-svgrepo-com.svg'
+import FontImg from '../icons/font-color-svgrepo-com.svg'
+
+const styles = {
+    backgroundColor: 'transparent',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+}
 
 function FontColourPicker({ selectedCell, color, setColor }) {
     const [showPicker, setShowPicker] = useState(false);
@@ -10,19 +17,15 @@ function FontColourPicker({ selectedCell, color, setColor }) {
     };
 
     const onChangeHandler = (updatedColor) => {
-        setColor(updatedColor.hex);
-    };
-
-    useEffect(() => {
         if (selectedCell) {
-            console.log(`Selected cell at row ${selectedCell.rowIndex}, column ${selectedCell.colId}`);
+            setColor(updatedColor.hex);
         }
-    }, [selectedCell]);
+    };
 
     return (
         <div>
-            <button onClick={togglePicker}>
-                <img src={FontImg} style={{ width: '18px', height: '18px'}}/>
+            <button onClick={togglePicker} style={styles}>
+                <img src={FontImg} style={{ width: '20px', height: '20px'}}/>
             </button>
             {showPicker && (
                 <SketchPicker

@@ -4,12 +4,13 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
 import axios from 'axios';
 import io from 'socket.io-client';
+import './styles.css'
 
 const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u }) {
+    underline, strikeThrough, b, i, s, u, fontFamily, w, wrapText, fontSize, setFontSize }) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -58,6 +59,7 @@ function Spreadsheet({ selectedCell,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
+                    cellClass: (params) => params.data[key].wrapText ? 'wrap-text' : '',
                     valueGetter: (params) => params.data[key].value || '',
                     cellStyle: (params) => {
                         const style = params.data[key];
@@ -71,11 +73,7 @@ function Spreadsheet({ selectedCell,
                             backgroundColor: style.backgroundColor,
                             textAlign: style.textAlign,
                             verticalAlign: style.verticalAlign,
-                            borderTop: style.borderTop,
-                            borderRight: style.borderRight,
-                            borderBottom: style.borderBottom,
-                            borderLeft: style.borderLeft,
-                            wrapText: style.wrapText
+                            whiteSpace: style.wrapText ? 'normal' : 'nowrap'
                         };
                     }
                 };
@@ -167,6 +165,47 @@ function Spreadsheet({ selectedCell,
     }, [color]);
 
     useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && fontFamily) {
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'fontFamily',
+                value: fontFamily
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [fontFamily]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && fontSize) {
+            console.log("increasing size " + fontSize)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'fontSize',
+                value: fontSize
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [fontSize]);
+
+    useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bold && b) {
             console.log("updating bold " + bold)
             const updateData = {
@@ -248,6 +287,27 @@ function Spreadsheet({ selectedCell,
     }, [s]);
 
     useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && w) {
+            console.log("wrap is " + wrapText)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'wrapText',
+                value: wrapText
+            };
+
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [w]);
+
+    useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && clear) {
             const updateData = {
                 _id: selectedCell._id,
@@ -278,7 +338,7 @@ function Spreadsheet({ selectedCell,
                 rowData={rowData}
                 columnDefs={colDefs}
                 rowSelection={'multiple'}
-                defaultColDef={{ cellStyle, editable: true }}
+                defaultColDef={{ editable: true }}
                 onCellValueChanged={onCellValueChanged}
                 onCellClicked={onCellClicked}
                 columnHoverHighlight={true}

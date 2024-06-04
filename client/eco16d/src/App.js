@@ -5,36 +5,43 @@ import FontColourPicker from './components/tools/FontColourPicker';
 import ClearFormatting from './components/tools/ClearFormatting';
 import BoldButton from './components/tools/BoldButton';
 import ItalicButton from './components/tools/ItalicButton';
-import FontStyleButton from './components/tools/FontStyleButton';
 import SizeButton from './components/tools/SizeButton';
 import UnderlineButton from './components/tools/UnderlineButton';
 import StrikethroughButton from './components/tools/StrikethroughButton';
+import FontPickerButton from './components/tools/FontPickerButton';
+import WrapTextButton from './components/tools/WrapTextButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
     const [bgcolor, setBgColor] = useState('#ffffff');
     const [color, setColor] = useState('#000000');
     const [fontFamily, setFontFamily] = useState('Arial');
-    const [fontSize, setFontSize] = useState(14);
     const [italic, setItalic] = useState("normal");
     const [bold, setBold] = useState("normal");
     const [underline, setUnderline] = useState(false);
     const [strikeThrough, setStrikeThrough] = useState('none');
-    const [textAlign, setTextAlign] = useState('left');
-    const [verticalAlign, setVerticalAlign] = useState('middle');
-    const [wrapText, setWrapText] = useState(false);
-    const [format, setFormat] = useState(false);
-    const [locked, setLocked] = useState(false);
-    const [cellRenderer, setCellRenderer] = useState(false);
     const [clear, setClear] = useState(false);
+    const [wrapText, setWrapText] = useState(false);
     const [b, setB] = useState(0);
     const [i, setI] = useState(0);
     const [s, setS] = useState(0);
     const [u, setU] = useState(0);
+    const [w, setW] = useState(0);
+    const [fontSize, setFontSize] = useState(14);
+    const [textAlign, setTextAlign] = useState('left');
+    const [verticalAlign, setVerticalAlign] = useState('middle');
+    const [format, setFormat] = useState(false);
+    const [locked, setLocked] = useState(false);
+    const [cellRenderer, setCellRenderer] = useState(false);
 
     return (
         <div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+            <FontPickerButton 
+                selectedCell={selectedCell}
+                fontFamily={fontFamily}
+                setFontFamily={setFontFamily}
+            />
             <ColourPicker 
                 selectedCell={selectedCell} 
                 color={bgcolor} 
@@ -70,7 +77,16 @@ function App() {
                 setS={setS}
 
             />
-            <SizeButton />
+            <SizeButton 
+                selectedCell={selectedCell}
+                fontSize={fontSize}
+                setFontSize={setFontSize}
+            />
+            <WrapTextButton 
+                selectedCell={selectedCell}
+                setW={setW}
+                setWrapText={setWrapText}
+            />
           </div>
             <Spreadsheet 
                 selectedCell={selectedCell} 
@@ -87,6 +103,11 @@ function App() {
                 u={u}
                 strikeThrough={strikeThrough}
                 s={s}
+                fontFamily={fontFamily}
+                w={w}
+                wrapText={wrapText}
+                fontSize={fontSize}
+                setFontSize={setFontSize}
             />
         </div>
     );

@@ -2,6 +2,13 @@ import React from 'react'
 import ItalicImg from '../icons/italic-svgrepo-com.svg'
 import axios from 'axios';
 
+const styles = {
+  backgroundColor: 'transparent',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+}
+
 function ItalicButton({selectedCell, setI, setItalic}) {
   const handleItalic = () => {
     if (selectedCell) {
@@ -24,7 +31,7 @@ function ItalicButton({selectedCell, setI, setItalic}) {
   }
 
   return (
-    <button onClick={handleItalic}>
+    <button onClick={handleItalic} style={styles}>
       <img src={ItalicImg} style={{ width: '18px', height: '18px' }}/>
     </button>
   )

@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SketchPicker } from 'react-color';
 import BgColorImg from '../icons/paint-bucket-color-colour-svgrepo-com.svg'
+
+const styles = {
+    backgroundColor: 'transparent',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+}
 
 function ColourPicker({ selectedCell, color, setColor }) {
     const [showPicker, setShowPicker] = useState(false);
@@ -10,18 +17,14 @@ function ColourPicker({ selectedCell, color, setColor }) {
     };
 
     const onChangeHandler = (updatedColor) => {
-        setColor(updatedColor.hex);
-    };
-
-    useEffect(() => {
         if (selectedCell) {
-            console.log(`Selected cell at row ${selectedCell.rowIndex}, column ${selectedCell.colId}`);
+            setColor(updatedColor.hex);
         }
-    }, [selectedCell]);
+    };
 
     return (
         <div>
-            <button onClick={togglePicker}>
+            <button onClick={togglePicker} style={styles}>
                 <img src={BgColorImg} style={{ width: '18px', height: '18px' }}/>
             </button>
             {showPicker && (
