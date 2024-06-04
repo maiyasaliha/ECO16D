@@ -22,7 +22,7 @@ function FontColourPicker({ selectedCell, color, setColor }) {
     return (
         <div>
             <button onClick={togglePicker}>
-                <img src={FontImg} style={{ width: '18px', height: '18px' }}/>
+                <img src={FontImg} style={{ width: '18px', height: '18px'}}/>
             </button>
             {showPicker && (
                 <SketchPicker

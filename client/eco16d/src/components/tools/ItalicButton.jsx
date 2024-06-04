@@ -19,7 +19,7 @@ function ItalicButton({selectedCell, setI, setItalic}) {
         setI(prevI => prevI + 1);
       })
       .catch(err => {
-        console.log('Error fetching bold:', err);
+        console.log('Error fetching italic:', err);
       });
   }
 

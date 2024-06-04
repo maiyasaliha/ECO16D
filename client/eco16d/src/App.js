@@ -16,11 +16,10 @@ function App() {
     const [color, setColor] = useState('#000000');
     const [fontFamily, setFontFamily] = useState('Arial');
     const [fontSize, setFontSize] = useState(14);
-    const [italic, setItalic] = useState(false);
+    const [italic, setItalic] = useState("normal");
     const [bold, setBold] = useState("normal");
     const [underline, setUnderline] = useState(false);
-    const [strikeThrough, setStrikeThrough] = useState(false);
-    const [textDecoration, setTextDecoration] = useState('none');
+    const [strikeThrough, setStrikeThrough] = useState('none');
     const [textAlign, setTextAlign] = useState('left');
     const [verticalAlign, setVerticalAlign] = useState('middle');
     const [wrapText, setWrapText] = useState(false);
@@ -30,7 +29,7 @@ function App() {
     const [clear, setClear] = useState(false);
     const [b, setB] = useState(0);
     const [i, setI] = useState(0);
-
+    const [s, setS] = useState(0);
 
 
 
@@ -68,6 +67,8 @@ function App() {
             <StrikethroughButton 
                 selectedCell={selectedCell}
                 setStrikeThrough={setStrikeThrough}
+                setS={setS}
+
             />
             <SizeButton />
           </div>
@@ -85,6 +86,7 @@ function App() {
                 underline={underline}
                 setUnderline={setUnderline}
                 strikeThrough={strikeThrough}
+                s={s}
                 setStrikeThrough={setStrikeThrough}
             />
         </div>

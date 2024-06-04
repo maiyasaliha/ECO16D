@@ -9,7 +9,7 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    setItalic, underline, setUnderline, strikeThrough, setStrikeThrough, b, i }) {
+    setItalic, underline, setUnderline, strikeThrough, setStrikeThrough, b, i, s }) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -229,12 +229,12 @@ function Spreadsheet({ selectedCell,
     }, [underline]);
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && strikeThrough) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && strikeThrough && s) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
                 property: 'textDecoration',
-                value: 'line-through'
+                value: strikeThrough
             };
 
             axios.post('http://localhost:3001/updateCellProperty', updateData)
@@ -245,9 +245,8 @@ function Spreadsheet({ selectedCell,
                 .catch(err => {
                     console.log('Error updating data:', err);
                 });
-            setStrikeThrough(false);
         }
-    }, [strikeThrough]);
+    }, [s]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && clear) {
