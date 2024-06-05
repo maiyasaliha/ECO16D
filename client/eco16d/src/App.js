@@ -30,9 +30,9 @@ function App() {
     const [a, setA] = useState(0);
     const [f, setF] = useState(0);
     const [e, setE] = useState(0);
+    const [z, setZ] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
-    const [verticalAlign, setVerticalAlign] = useState('middle');
     const [format, setFormat] = useState(false);
     const [locked, setLocked] = useState(false);
     const [editor, setEditor] = useState(false);
@@ -85,6 +85,7 @@ function App() {
                 selectedCell={selectedCell}
                 fontSize={fontSize}
                 setFontSize={setFontSize}
+                setZ={setZ}
             />
             <TextAlignButton 
                 selectedCell={selectedCell}
@@ -124,6 +125,7 @@ function App() {
                 f={f}
                 editor={editor}
                 e={e}
+                z={z}
             />
         </div>
     );

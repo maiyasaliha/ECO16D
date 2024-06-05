@@ -8,11 +8,12 @@ const styles = {
   cursor: 'pointer',
 };
 
-function SizeButton({ selectedCell, fontSize, setFontSize }) {
+function SizeButton({ selectedCell, fontSize, setFontSize, setZ }) {
   
   useEffect(() => {
     if (selectedCell) {
       fetchSize();
+      console.log("fetched size is " + fontSize)
     }
   }, [selectedCell]);
 
@@ -22,6 +23,7 @@ function SizeButton({ selectedCell, fontSize, setFontSize }) {
       const size = parseInt(event.target.value, 10);
       if (!isNaN(size)) {
         setFontSize(size);
+        setZ(prevZ => prevZ + 1);
       }
     }
   };

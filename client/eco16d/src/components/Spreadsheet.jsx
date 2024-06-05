@@ -10,11 +10,9 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e}) {
+    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e, z}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
-    const [startCell, setStartCell] = useState(null);
-    const [endCell, setEndCell] = useState(null);
 
     useEffect(() => {
         socket.on('connect', () => {});
@@ -124,24 +122,6 @@ function Spreadsheet({ selectedCell,
         });
     };
 
-    const onRangeSelectionChanged = (event) => {
-        const rangeSelections = event.api.getCellRanges();
-        if (rangeSelections.length > 0) {
-            const range = rangeSelections[0];
-            const startCell = {
-                rowIndex: range.startRow.rowIndex,
-                colId: range.startColumn.getColId()
-            };
-            const endCell = {
-                rowIndex: range.endRow.rowIndex,
-                colId: range.endColumn.getColId()
-            };
-            setStartCell(startCell);
-            setEndCell(endCell);
-            console.log("Selected Range:", startCell, "to", endCell);
-        }
-    };
-
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
             const updateData = {
@@ -202,26 +182,26 @@ function Spreadsheet({ selectedCell,
         }
     }, [fontFamily]);
 
-    // useEffect(() => {
-    //     if (selectedCell && selectedCell._id && selectedCell.colId && fontSize) {
-    //         console.log("increasing size " + fontSize)
-    //         const updateData = {
-    //             _id: selectedCell._id,
-    //             field: selectedCell.colId,
-    //             property: 'fontSize',
-    //             value: fontSize
-    //         };
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && fontSize && z) {
+            console.log("increasing size " + fontSize)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'fontSize',
+                value: fontSize
+            };
 
-    //         axios.post('http://localhost:3001/updateCellProperty', updateData)
-    //             .then(response => {
-    //                 socket.emit('updateCell', updateData);
-    //                 fetchData();
-    //             })
-    //             .catch(err => {
-    //                 console.log('Error updating data:', err);
-    //             });
-    //     }
-    // }, [fontSize]);
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+        }
+    }, [z]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bold && b) {
@@ -385,6 +365,7 @@ function Spreadsheet({ selectedCell,
         }
     }, [e]);
 
+
     return (
         <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
             <AgGridReact
@@ -394,7 +375,6 @@ function Spreadsheet({ selectedCell,
                 defaultColDef={{ editable: true }}
                 onCellValueChanged={onCellValueChanged}
                 onCellClicked={onCellClicked}
-                onRangeSelectionChanged={onRangeSelectionChanged}
                 columnHoverHighlight={true}
                 suppressDragLeaveHidesColumns={true}
             />
