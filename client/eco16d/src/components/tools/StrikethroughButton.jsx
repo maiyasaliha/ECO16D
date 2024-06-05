@@ -21,7 +21,6 @@ function StrikethroughButton({selectedCell, setS, setStrikeThrough}) {
       .then(response => {
         const currentDeco = response.data[selectedCell.colId].textDecoration;
         const newDeco = currentDeco === "line-through" ? "none" : "line-through";
-        console.log(newDeco);
         setStrikeThrough(newDeco);
         setS(prevS => prevS + 1);
       })

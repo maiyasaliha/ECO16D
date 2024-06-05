@@ -20,7 +20,6 @@ function UnderlineButton({selectedCell, setU, setUnderline}) {
       .then(response => {
         const currentDeco = response.data[selectedCell.colId].textDecoration;
         const newDeco = currentDeco === "underline" ? "none" : "underline";
-        console.log(newDeco);
         setUnderline(newDeco);
         setU(prevU => prevU + 1);
       })

@@ -9,7 +9,6 @@ import SizeButton from './components/tools/SizeButton';
 import UnderlineButton from './components/tools/UnderlineButton';
 import StrikethroughButton from './components/tools/StrikethroughButton';
 import FontPickerButton from './components/tools/FontPickerButton';
-import WrapTextButton from './components/tools/WrapTextButton';
 import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
 import CellRendererButton from './components/tools/CellRendererButton';
@@ -24,19 +23,19 @@ function App() {
     const [underline, setUnderline] = useState(false);
     const [strikeThrough, setStrikeThrough] = useState('none');
     const [clear, setClear] = useState(false);
-    const [wrapText, setWrapText] = useState(false);
     const [b, setB] = useState(0);
     const [i, setI] = useState(0);
     const [s, setS] = useState(0);
     const [u, setU] = useState(0);
-    const [w, setW] = useState(0);
     const [a, setA] = useState(0);
+    const [f, setF] = useState(0);
+    const [e, setE] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
     const [verticalAlign, setVerticalAlign] = useState('middle');
     const [format, setFormat] = useState(false);
     const [locked, setLocked] = useState(false);
-    const [cellRenderer, setCellRenderer] = useState(false);
+    const [editor, setEditor] = useState(false);
 
     return (
         <div>
@@ -87,11 +86,6 @@ function App() {
                 fontSize={fontSize}
                 setFontSize={setFontSize}
             />
-            <WrapTextButton 
-                selectedCell={selectedCell}
-                setW={setW}
-                setWrapText={setWrapText}
-            />
             <TextAlignButton 
                 selectedCell={selectedCell}
                 setTextAlign={setTextAlign}
@@ -101,10 +95,9 @@ function App() {
             <CellFormatButton 
                 selectedCell={selectedCell}
                 setFormat={setFormat}
-            />
-            <CellRendererButton 
-                selectedCell={selectedCell}
-                setCellRenderer={setCellRenderer}
+                setF={setF}
+                setEditor={setEditor}
+                setE={setE}
             />
           </div>
             <Spreadsheet 
@@ -123,12 +116,14 @@ function App() {
                 strikeThrough={strikeThrough}
                 s={s}
                 fontFamily={fontFamily}
-                w={w}
-                wrapText={wrapText}
                 fontSize={fontSize}
                 setFontSize={setFontSize}
                 textAlign={textAlign}
                 a={a}
+                format={format}
+                f={f}
+                editor={editor}
+                e={e}
             />
         </div>
     );

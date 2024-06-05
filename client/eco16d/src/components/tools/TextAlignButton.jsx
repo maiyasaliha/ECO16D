@@ -26,7 +26,6 @@ function TextAlignButton({ selectedCell, setA, setTextAlign }) {
               currentAlign === "center" ?
               "right" :
               "left";
-            console.log(newAlign);
             setTextAlign(newAlign);
             setA(prevA => prevA + 1);
           })

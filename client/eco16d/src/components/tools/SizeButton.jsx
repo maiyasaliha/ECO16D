@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import SizeImg from '../icons/font-size-line-svgrepo-com.svg';
 import axios from 'axios';
 
 const styles = {

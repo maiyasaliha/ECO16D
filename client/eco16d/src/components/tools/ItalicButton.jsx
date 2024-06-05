@@ -21,7 +21,6 @@ function ItalicButton({selectedCell, setI, setItalic}) {
       .then(response => {
         const currentStyle = response.data[selectedCell.colId].fontStyle;
         const newStyle = currentStyle === "italic" ? "normal" : "italic";
-        console.log(newStyle);
         setItalic(newStyle);
         setI(prevI => prevI + 1);
       })

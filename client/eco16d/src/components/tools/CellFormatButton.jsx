@@ -18,28 +18,36 @@ const options = [
 
 const defaultOption = options[0];
 
-function CellFormatButton({ selectedCell, setF, setFormat }) {
+function CellFormatButton({ selectedCell, setF, setFormat, setE, setEditor }) {
     
     const handleFormatChange = (format) => {
         if (selectedCell) {
+            console.log(selectedCell)
             setFormat(format);
-            console.log(format)
+            console.log("format is " + format.value)
+            setF(prevF => prevF + 1)
+            if (format.value === 'date') {
+                setEditor('agDateCellEditor')
+                setE(prevE => prevE + 1)
+            }
+            if (format.value === 'dateString') {
+                setEditor('agDateStringCellEditor')
+                setE(prevE => prevE + 1)
+            }
+            if (format.value === 'number') {
+                setEditor('agNumberCellEditor')
+                setE(prevE => prevE + 1)
+            }
+            if (format.value === 'boolean') {
+                setEditor('agCheckboxCellEditor')
+                setE(prevE => prevE + 1)
+            }
+            if (format.value === 'text') {
+                setEditor('agTextCellEditor')
+                setE(prevE => prevE + 1)
+            }
         }
     };
-
-    // const fetchRender = () => {
-    //     axios.get(`http://localhost:3001/getCellProperty/${selectedCell._id}/${selectedCell.colId}/cellRenderer`)
-    //       .then(response => {
-    //         const currentRender = response.data[selectedCell.colId].cellRenderer;
-    //         const newRender = currentRender === 
-    //         console.log(newRender);
-    //         setCellRenderer(newRender);
-    //         setR(prevR => prevR + 1);
-    //       })
-    //       .catch(err => {
-    //         console.log('Error fetching bold:', err);
-    //       });
-    //   }
 
     return (
         <div>

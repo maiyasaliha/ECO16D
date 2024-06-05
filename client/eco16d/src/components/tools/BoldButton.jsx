@@ -21,7 +21,6 @@ function BoldButton({ selectedCell, setB, setBold }) {
       .then(response => {
         const currentWeight = response.data[selectedCell.colId].fontWeight;
         const newWeight = currentWeight === "bold" ? "normal" : "bold";
-        console.log(newWeight);
         setBold(newWeight);
         setB(prevB => prevB + 1);
       })

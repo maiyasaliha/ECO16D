@@ -183,7 +183,7 @@ app.post('/clearCellProperty', (req, res) => {
         fontStyle: "normal",
         textDecoration: "none",
         color: "#000000",
-        backgroundColor: "#ffffff",
+        backgroundColor: "",
         textAlign: "left",
         verticalAlign: "middle",
         borderTop: null,
@@ -214,5 +214,20 @@ app.post('/clearCellProperty', (req, res) => {
         })
         .catch(err => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
+        });
+});
+
+app.get('/rows', (req, res) => {
+    db.collection('rows')
+        .findOne({})
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(doc);
+            } else {
+                res.status(404).json({ error: 'Data not found' });
+            }
+        })
+        .catch(() => {
+            res.status(500).json({ error: 'Could not fetch Cell Rows document' });
         });
 });

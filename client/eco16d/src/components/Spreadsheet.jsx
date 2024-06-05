@@ -10,7 +10,7 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u, fontFamily, w, wrapText, fontSize, textAlign, a }) {
+    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -43,7 +43,7 @@ function Spreadsheet({ selectedCell,
                 console.log('Error fetching data:', err);
             });
     }
-    
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -59,7 +59,6 @@ function Spreadsheet({ selectedCell,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-                    cellDataType: (params) => params.data[key].format,
                     valueGetter: (params) => params.data[key].value || '',
                     cellStyle: (params) => {
                         const style = params.data[key];
@@ -73,7 +72,6 @@ function Spreadsheet({ selectedCell,
                             backgroundColor: style.backgroundColor,
                             textAlign: style.textAlign,
                             verticalAlign: style.verticalAlign,
-                            whiteSpace: style.wrapText ? 'normal' : 'nowrap'
                         };
                     }
                 };
@@ -123,6 +121,10 @@ function Spreadsheet({ selectedCell,
             _id: params.data._id
         });
     };
+
+    const onGridReady = (params) => {
+        params.api.sizeColumnsToFit();
+    };   
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
@@ -184,30 +186,29 @@ function Spreadsheet({ selectedCell,
         }
     }, [fontFamily]);
 
-    useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && fontSize) {
-            console.log("increasing size " + fontSize)
-            const updateData = {
-                _id: selectedCell._id,
-                field: selectedCell.colId,
-                property: 'fontSize',
-                value: fontSize
-            };
+    // useEffect(() => {
+    //     if (selectedCell && selectedCell._id && selectedCell.colId && fontSize) {
+    //         console.log("increasing size " + fontSize)
+    //         const updateData = {
+    //             _id: selectedCell._id,
+    //             field: selectedCell.colId,
+    //             property: 'fontSize',
+    //             value: fontSize
+    //         };
 
-            axios.post('http://localhost:3001/updateCellProperty', updateData)
-                .then(response => {
-                    socket.emit('updateCell', updateData);
-                    fetchData();
-                })
-                .catch(err => {
-                    console.log('Error updating data:', err);
-                });
-        }
-    }, [fontSize]);
+    //         axios.post('http://localhost:3001/updateCellProperty', updateData)
+    //             .then(response => {
+    //                 socket.emit('updateCell', updateData);
+    //                 fetchData();
+    //             })
+    //             .catch(err => {
+    //                 console.log('Error updating data:', err);
+    //             });
+    //     }
+    // }, [fontSize]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bold && b) {
-            console.log("updating bold " + bold)
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -287,27 +288,6 @@ function Spreadsheet({ selectedCell,
     }, [s]);
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && w) {
-            console.log("wrap is " + wrapText)
-            const updateData = {
-                _id: selectedCell._id,
-                field: selectedCell.colId,
-                property: 'wrapText',
-                value: wrapText
-            };
-
-            axios.post('http://localhost:3001/updateCellProperty', updateData)
-                .then(response => {
-                    socket.emit('updateCell', updateData);
-                    fetchData();
-                })
-                .catch(err => {
-                    console.log('Error updating data:', err);
-                });
-        }
-    }, [w]);
-
-    useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && clear) {
             const updateData = {
                 _id: selectedCell._id,
@@ -329,7 +309,6 @@ function Spreadsheet({ selectedCell,
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && textAlign && a) {
-            console.log("textAlign is " + textAlign)
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -338,16 +317,57 @@ function Spreadsheet({ selectedCell,
             };
             axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
-                console.log(response.data.message);
                 socket.emit('updateCell', updateData);
                 fetchData();
             })
             .catch(error => {
-                console.error('Error clearing formatting:', error);
+                console.error('Error updating data: ', error);
             });
         } else {
         }
     }, [a]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && format && f) {
+            console.log("setting " + format.value + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'format',
+                value: format.value
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data: ', error);
+            });
+        } else {
+        }
+    }, [f]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && editor && e) {
+            console.log("setting " + editor + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'cellRenderer',
+                value: editor
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data:', error);
+            });
+        } else {
+        }
+    }, [e]);
     
     const cellStyle = {
         borderRight: '1px solid #ccc',
@@ -365,6 +385,7 @@ function Spreadsheet({ selectedCell,
                 onCellClicked={onCellClicked}
                 columnHoverHighlight={true}
                 suppressDragLeaveHidesColumns={true}
+                onGridReady={onGridReady}
             />
         </div>
     );
