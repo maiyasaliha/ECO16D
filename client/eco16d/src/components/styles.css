@@ -1,8 +1,11 @@
 .ag-theme-quartz .ag-cell {
-    border-left: 1px solid #ccc; /* Adjust thickness and color as needed */
-    border-bottom: 1px solid #ccc; /* Adjust thickness and color as needed */
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
 
-.wrap-text {
-    white-space: normal !important;
+.ag-header-cell.selected {
+    background-color: #c5e1a5;
+}
+.ag-cell.selected {
+    background-color: #c5e1a5;
 }

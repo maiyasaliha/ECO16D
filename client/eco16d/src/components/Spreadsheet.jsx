@@ -13,6 +13,7 @@ function Spreadsheet({ selectedCell,
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e, z}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
+    const [selectedColumn, setSelectedColumn] = useState(null);
 
     useEffect(() => {
         socket.on('connect', () => {});
@@ -85,7 +86,7 @@ function Spreadsheet({ selectedCell,
                     lockPinned: true,
                     width: 70,
                     sortable: false,
-                    headerCheckboxSelection: true
+                    headerCheckboxSelection: true,
                 },
                 ...resolvedColDefs
             ];
