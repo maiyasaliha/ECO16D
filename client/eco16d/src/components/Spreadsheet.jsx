@@ -13,7 +13,6 @@ function Spreadsheet({ selectedCell,
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e, z}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
-    const [selectedColumn, setSelectedColumn] = useState(null);
 
     useEffect(() => {
         socket.on('connect', () => {});
