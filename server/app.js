@@ -31,7 +31,7 @@ connectToDb((err) => {
                 console.log('Received updateCell event:', data);
                 if (ObjectId.isValid(data._id)) {
                     const updateQuery = { $set: {} };
-                    updateQuery.$set[`${data.field}.value`] = data.value;
+                    updateQuery.$set[`${data.field.property}`] = data.value;
 
                     db.collection('cellrows')
                         .updateOne({ _id: new ObjectId(data._id) }, updateQuery)
@@ -57,68 +57,6 @@ connectToDb((err) => {
     }
 });
 
-app.get('/principale', (req, res) => {
-    let principals = []
-    db.collection('principale')
-        .find()
-        .forEach(p => principals.push(p))
-        .then(() => {
-            res.status(200).json(principals)
-        })
-        .catch(() => {
-            res.status(500). json({error: 'Could not fetch Principale documents'})
-        })
-})
-
-app.get('/principale/:id', (req, res) => {
-
-    if (ObjectId.isValid(req.params.id)) {
-        db.collection('principale')
-        .findOne({_id: new ObjectId(req.params.id)})
-        .then(doc => {
-            res.status(200).json(doc)
-        })
-        .catch(() => {
-            res.status(500).json({error: 'Could not fetch Principale documents'})
-        })
-    } else {
-        res.status(500).json({error: 'not a valid Principale id'})
-    }
-    
-})
-
-app.post('/postPrincipale', (req, res) => {
-    const p = req.body;
-    db.collection('principale')
-    .insertOne(p)
-    .then(result => {
-        res.status(201).json(result)
-    })
-    .catch(err => {
-        res.status(500).json({err: 'Could not create a new Principale document'})
-
-    })
-
-})
-
-app.post('/updatePrincipale', (req, res) => {
-    const { _id, field, value } = req.body;
-    
-    if (ObjectId.isValid(_id)) {
-        db.collection('principale')
-            .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
-            .then(result => {
-                if (result.modifiedCount > 0) {
-                    res.status(200).json({ message: 'Document updated successfully' });
-                }
-            })
-            .catch(err => {
-                res.status(500).json({ error: 'Could not update the document', details: err });
-            });
-    } else {
-        res.status(400).json({ error: 'Invalid document ID' });
-    }
-});
 
 app.get('/cellRows', (req, res) => {
     let cr = []
@@ -143,6 +81,26 @@ app.get('/cellRows/:id', (req, res) => {
         })
         .catch(() => {
             res.status(500).json({error: 'Could not fetch Cell Rows documents'})
+        })
+    } else {
+        res.status(500).json({error: 'not a valid Cell Row id'})
+    }
+    
+})
+
+app.get('/getCellProperty/:id/:colId/:property', (req, res) => {
+
+    if (ObjectId.isValid(req.params.id)) {
+        db.collection('cellrows')
+        .findOne(
+            {_id: new ObjectId(req.params.id)},
+            {projection: { [`${req.params.colId}.${req.params.property}`]: 1 }}
+        )
+        .then(doc => {
+            res.status(200).json(doc)
+        })
+        .catch(() => {
+            res.status(500).json({error: 'Could not fetch property ' + req.params.property})
         })
     } else {
         res.status(500).json({error: 'not a valid Cell Row id'})
@@ -205,3 +163,71 @@ app.post('/updateCellProperty', (req, res) => {
     }
 });
 
+app.post('/clearCellProperty', (req, res) => {
+    const { _id, field } = req.body;
+
+    if (!ObjectId.isValid(_id)) {
+        res.status(400).json({ error: 'Invalid document ID' });
+        return;
+    }
+
+    if (!field) {
+        res.status(400).json({ error: 'Field name is required' });
+        return;
+    }
+
+    const defaultFormatting = {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
+        color: "#000000",
+        backgroundColor: "",
+        textAlign: "left",
+        verticalAlign: "middle",
+        borderTop: null,
+        borderRight: "1px solid #ccc",
+        borderBottom: "1px solid #ccc",
+        borderLeft: null,
+        wrapText: false,
+        format: "text",
+        locked: null,
+        cellRenderer: "agTextCellEditor"
+    };
+
+    const updateQuery = {
+        $set: {}
+    };
+    for (const key in defaultFormatting) {
+        updateQuery.$set[`${field}.${key}`] = defaultFormatting[key];
+    }
+
+    db.collection('cellrows')
+        .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+        .then(result => {
+            if (result.modifiedCount > 0) {
+                res.status(200).json({ message: 'Formatting set to default for field ' + field + ' in cell ' + _id });
+            } else {
+                res.status(404).json({ error: 'Document not found' });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
+        });
+});
+
+app.get('/rows', (req, res) => {
+    db.collection('rows')
+        .findOne({})
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(doc);
+            } else {
+                res.status(404).json({ error: 'Data not found' });
+            }
+        })
+        .catch(() => {
+            res.status(500).json({ error: 'Could not fetch Cell Rows document' });
+        });
+});

@@ -1,0 +1,8 @@
+.ag-theme-quartz .ag-cell {
+    border-left: 1px solid #ccc; /* Adjust thickness and color as needed */
+    border-bottom: 1px solid #ccc; /* Adjust thickness and color as needed */
+}
+
+.wrap-text {
+    white-space: normal !important;
+}
