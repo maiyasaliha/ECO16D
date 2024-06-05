@@ -47,6 +47,28 @@ function Spreadsheet({ selectedCell,
     useEffect(() => {
         fetchData();
     }, []);
+
+    const getEditor = (data, key) => {
+        //let temp = param.data[key].format;
+        console.log("data is "  + data);
+        console.log("key is "  + key);
+        console.log("data[key] is "  + data[key]);
+
+
+        // if (temp == 'text') {
+        //     return 'agTextCellEditor'
+        // }
+        // if (temp == 'number') {
+        //     return 'agNumberCellEditor'
+        // }
+        // if (temp == 'boolean') {
+        //     return 'agCheckBoxCellEditor'
+        // }
+        // if (temp == 'date') {
+        //     return 'agDateCellEditor'
+        // }
+        return 'agTextCellEditor'
+    };
     
     const generateColDefs = async (data) => {
         if (data.length > 0) {
@@ -60,6 +82,10 @@ function Spreadsheet({ selectedCell,
                     filter: true,
                     suppressMovable: true,
                     valueGetter: (params) => params.data[key].value || '',
+                    cellEditor: 
+                    (params) => params.data[key].cellRenderer === 'agTextCellEditor' 
+                    ? 'agTextCellEditor' 
+                    : params.data[key].cellRenderer === 'agTextCellEditor',
                     cellStyle: (params) => {
                         const style = params.data[key];
                         return {
