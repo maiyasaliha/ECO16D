@@ -19,6 +19,7 @@ function FontColourPicker({ selectedCell, color, setColor }) {
     const onChangeHandler = (updatedColor) => {
         if (selectedCell) {
             setColor(updatedColor.hex);
+            togglePicker();
         }
     };
 

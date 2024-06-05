@@ -19,6 +19,7 @@ function FontPickerButton({ selectedCell, fontFamily, setFontFamily }) {
     const handleFontChange = (font) => {
         if (selectedCell) {
             setFontFamily(font);
+            togglePicker();
         }
     };
 

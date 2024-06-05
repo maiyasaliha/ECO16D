@@ -13,6 +13,8 @@ function Spreadsheet({ selectedCell,
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
+    const [startCell, setStartCell] = useState(null);
+    const [endCell, setEndCell] = useState(null);
 
     useEffect(() => {
         socket.on('connect', () => {});
@@ -122,9 +124,23 @@ function Spreadsheet({ selectedCell,
         });
     };
 
-    const onGridReady = (params) => {
-        params.api.sizeColumnsToFit();
-    };   
+    const onRangeSelectionChanged = (event) => {
+        const rangeSelections = event.api.getCellRanges();
+        if (rangeSelections.length > 0) {
+            const range = rangeSelections[0];
+            const startCell = {
+                rowIndex: range.startRow.rowIndex,
+                colId: range.startColumn.getColId()
+            };
+            const endCell = {
+                rowIndex: range.endRow.rowIndex,
+                colId: range.endColumn.getColId()
+            };
+            setStartCell(startCell);
+            setEndCell(endCell);
+            console.log("Selected Range:", startCell, "to", endCell);
+        }
+    };
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
@@ -368,11 +384,6 @@ function Spreadsheet({ selectedCell,
         } else {
         }
     }, [e]);
-    
-    const cellStyle = {
-        borderRight: '1px solid #ccc',
-        borderBottom: '1px solid #ccc'
-    };
 
     return (
         <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
@@ -383,9 +394,9 @@ function Spreadsheet({ selectedCell,
                 defaultColDef={{ editable: true }}
                 onCellValueChanged={onCellValueChanged}
                 onCellClicked={onCellClicked}
+                onRangeSelectionChanged={onRangeSelectionChanged}
                 columnHoverHighlight={true}
                 suppressDragLeaveHidesColumns={true}
-                onGridReady={onGridReady}
             />
         </div>
     );
