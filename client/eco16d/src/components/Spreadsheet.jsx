@@ -48,41 +48,53 @@ function Spreadsheet({ selectedCell,
     useEffect(() => {
         fetchData();
     }, []);
-    
+
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
             const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined' && key != 'pin');
-            const duplicateKeys = filteredKeys;
-            console.log("dupe is "+ duplicateKeys);
-            const cellEditor = data[7]['D'].cellRenderer;
-            let editors = [];
-            for (let i = 0; i < data.length; i++) {
-                const rowEditors = duplicateKeys.map(key => data[i][key].cellRenderer);
-                editors.push(rowEditors);
-            }
-            console.log("ediors is "+ editors)
             const promises = filteredKeys.map(async key => {
+                let cellEditorFramework; 
+                let renderer = false;
+                let date = false;
+                cellEditorFramework = data[0][key].cellRenderer;
+                if (cellEditorFramework == 'agCheckboxCellEditor') {
+                    renderer = true;
+                }
+                if (cellEditorFramework == 'agDateCellEditor') {
+                    date = true;
+                }
                 return {
                     headerName: key,
                     field: key,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
+                    cellEditor: cellEditorFramework,
+                    cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
                     colSpan: (params) => params.data[key].span,
-                    valueGetter: (params) => params.data[key].value || '',
+                    valueGetter: (params) => {
+                    return params.data[key]?.value || '';
+                    },
+                    valueFormatter: date ? (params) => {
+                        const value = params.value;
+                        if (!value) return '';
+                        const dateValue = new Date(value);
+                        const formattedDate = `${('0' + (dateValue.getMonth() + 1)).slice(-2)}-${('0' + dateValue.getDate()).slice(-2)}-${dateValue.getFullYear()}`;
+                        return formattedDate;
+                    } : null,
                     cellStyle: (params) => {
                         const style = params.data[key];
                         return {
-                            fontFamily: style.fontFamily,
-                            fontSize: style.fontSize,
-                            fontWeight: style.fontWeight,
-                            fontStyle: style.fontStyle,
-                            textDecoration: style.textDecoration,
-                            color: style.color,
-                            backgroundColor: style.backgroundColor,
-                            textAlign: style.textAlign,
-                            verticalAlign: style.verticalAlign,
+                            fontFamily: style?.fontFamily,
+                            fontSize: style?.fontSize,
+                            fontWeight: style?.fontWeight,
+                            fontStyle: style?.fontStyle,
+                            textDecoration: style?.textDecoration,
+                            color: style?.color,
+                            backgroundColor: style?.backgroundColor,
+                            textAlign: style?.textAlign,
+                            verticalAlign: style?.verticalAlign,
                         };
                     }
                 };
