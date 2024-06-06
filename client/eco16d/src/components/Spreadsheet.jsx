@@ -73,9 +73,7 @@ function Spreadsheet({ selectedCell,
                     cellEditor: cellEditorFramework,
                     cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
                     colSpan: (params) => params.data[key].span,
-                    valueGetter: (params) => {
-                    return params.data[key]?.value || '';
-                    },
+                    valueGetter: (params) => params.data[key]?.value || '',
                     valueFormatter: date ? (params) => {
                         const value = params.value;
                         if (!value) return '';
