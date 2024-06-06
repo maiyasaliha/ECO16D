@@ -12,6 +12,8 @@ import FontPickerButton from './components/tools/FontPickerButton';
 import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
 import CellRendererButton from './components/tools/CellRendererButton';
+import MergeCellsButton from './components/tools/MergeCellsButton';
+import PinRowButton from './components/tools/PinRowButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -31,11 +33,15 @@ function App() {
     const [f, setF] = useState(0);
     const [e, setE] = useState(0);
     const [z, setZ] = useState(0);
+    const [m, setM] = useState(0);
+    const [p, setP] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
     const [format, setFormat] = useState(false);
-    const [locked, setLocked] = useState(false);
+    const [merge, setMerge] = useState(false);
     const [editor, setEditor] = useState(false);
+    const [pin, setPin] = useState(false);
+    const [pinnedTopRowData, setPinnedTopRowData] = useState([]);
 
     return (
         <div>
@@ -46,6 +52,12 @@ function App() {
                 selectedCell={selectedCell}
                 fontFamily={fontFamily}
                 setFontFamily={setFontFamily}
+            />
+            <SizeButton 
+                selectedCell={selectedCell}
+                fontSize={fontSize}
+                setFontSize={setFontSize}
+                setZ={setZ}
             />
             <ColourPicker 
                 selectedCell={selectedCell} 
@@ -81,17 +93,23 @@ function App() {
                 setStrikeThrough={setStrikeThrough}
                 setS={setS}
             />
-            <SizeButton 
-                selectedCell={selectedCell}
-                fontSize={fontSize}
-                setFontSize={setFontSize}
-                setZ={setZ}
-            />
             <TextAlignButton 
                 selectedCell={selectedCell}
                 setTextAlign={setTextAlign}
                 a={a}
                 setA={setA}
+            />
+            <MergeCellsButton
+                selectedCell={selectedCell}
+                setM={setM}
+                setMerge={setMerge}
+            />
+            <PinRowButton 
+                selectedCell={selectedCell}
+                setP={setP}
+                setPin={setPin}
+                pinnedTopRowData={pinnedTopRowData}
+                setPinnedTopRowData={setPinnedTopRowData}
             />
             <CellFormatButton 
                 selectedCell={selectedCell}
@@ -126,6 +144,11 @@ function App() {
                 editor={editor}
                 e={e}
                 z={z}
+                m={m}
+                merge={merge}
+                p={p}
+                pin={pin}
+                pinnedTopRowData={pinnedTopRowData}
             />
         </div>
     );

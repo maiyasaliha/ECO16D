@@ -10,7 +10,8 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e, z}) {
+    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, 
+    format, f, editor, e, z, m, merge, p, pin}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -59,6 +60,7 @@ function Spreadsheet({ selectedCell,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
+                    colSpan: (params) => params.data[key].span,
                     valueGetter: (params) => params.data[key].value || '',
                     cellStyle: (params) => {
                         const style = params.data[key];
@@ -346,6 +348,27 @@ function Spreadsheet({ selectedCell,
     }, [f]);
 
     useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && merge && m) {
+            console.log("setting " + merge + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'span',
+                value: merge
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data: ', error);
+            });
+        } else {
+        }
+    }, [m]);
+
+    useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && editor && e) {
             console.log("setting " + editor + " for " + selectedCell._id + " " + selectedCell.colId)
             const updateData = {
@@ -365,6 +388,25 @@ function Spreadsheet({ selectedCell,
         } else {
         }
     }, [e]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && p) {
+            console.log("setting " + pin + " for " + selectedCell._id)
+            const updateData = {
+                _id: selectedCell._id,
+                value: pin
+            };
+            axios.post('http://localhost:3001/pin', updateData)
+            .then(response => {
+                socket.emit('pinCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data:', error);
+            });
+        } else {
+        }
+    }, [p]);
 
 
     return (
