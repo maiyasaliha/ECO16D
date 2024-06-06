@@ -84,7 +84,8 @@ function Spreadsheet({ selectedCell,
                     pinned: 'left',
                     lockPinned: true,
                     width: 70,
-                    sortable: false
+                    sortable: false,
+                    cellStyle: {textAlign: 'center'}
                 },
                 ...resolvedColDefs
             ];

@@ -3,6 +3,10 @@
     border-bottom: 1px solid #ccc; /* Adjust thickness and color as needed */
 }
 
-.wrap-text {
-    white-space: normal !important;
+.ag-header-cell-label .ag-header-cell-text {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
 }
