@@ -52,7 +52,16 @@ function Spreadsheet({ selectedCell,
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
-            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined');
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined' && key != 'pin');
+            const duplicateKeys = filteredKeys;
+            console.log("dupe is "+ duplicateKeys);
+            const cellEditor = data[7]['D'].cellRenderer;
+            let editors = [];
+            for (let i = 0; i < data.length; i++) {
+                const rowEditors = duplicateKeys.map(key => data[i][key].cellRenderer);
+                editors.push(rowEditors);
+            }
+            console.log("ediors is "+ editors)
             const promises = filteredKeys.map(async key => {
                 return {
                     headerName: key,

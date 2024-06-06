@@ -11,7 +11,6 @@ import StrikethroughButton from './components/tools/StrikethroughButton';
 import FontPickerButton from './components/tools/FontPickerButton';
 import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
-import CellRendererButton from './components/tools/CellRendererButton';
 import MergeCellsButton from './components/tools/MergeCellsButton';
 import PinRowButton from './components/tools/PinRowButton';
 
