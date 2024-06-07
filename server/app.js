@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 let db
+let collection = 'principale'
 connectToDb((err) => {
     if (!err) {
         const server = http.createServer(app);
@@ -33,7 +34,7 @@ connectToDb((err) => {
                     const updateQuery = { $set: {} };
                     updateQuery.$set[`${data.field.property}`] = data.value;
 
-                    db.collection('cellrows')
+                    db.collection(collection)
                         .updateOne({ _id: new ObjectId(data._id) }, updateQuery)
                         .then(
                             socket.broadcast.emit('cellUpdated', data)
@@ -45,6 +46,7 @@ connectToDb((err) => {
                     console.error('Invalid document ID');
                 }
             });
+            
         });
 
         server.listen(3001, () => {
@@ -60,7 +62,7 @@ connectToDb((err) => {
 
 app.get('/cellRows', (req, res) => {
     let cr = []
-    db.collection('cellrows')
+    db.collection(collection)
         .find()
         .forEach(r => cr.push(r))
         .then(() => {
@@ -74,7 +76,7 @@ app.get('/cellRows', (req, res) => {
 app.get('/cellRows/:id', (req, res) => {
 
     if (ObjectId.isValid(req.params.id)) {
-        db.collection('cellrows')
+        db.collection(collection)
         .findOne({_id: new ObjectId(req.params.id)})
         .then(doc => {
             res.status(200).json(doc)
@@ -91,7 +93,7 @@ app.get('/cellRows/:id', (req, res) => {
 app.get('/getCellProperty/:id/:colId/:property', (req, res) => {
 
     if (ObjectId.isValid(req.params.id)) {
-        db.collection('cellrows')
+        db.collection(collection)
         .findOne(
             {_id: new ObjectId(req.params.id)},
             {projection: { [`${req.params.colId}.${req.params.property}`]: 1 }}
@@ -110,7 +112,7 @@ app.get('/getCellProperty/:id/:colId/:property', (req, res) => {
 
 app.post('/postCellRow', (req, res) => {
     const cr = req.body;
-    db.collection('cellrows')
+    db.collection(collection)
     .insertOne(cr)
     .then(result => {
         res.status(201).json(result)
@@ -126,7 +128,7 @@ app.post('/updateCellRow', (req, res) => {
     const { _id, field, value } = req.body;
     
     if (ObjectId.isValid(_id)) {
-        db.collection('cellrows')
+        db.collection(collection)
             .updateOne({ _id: new ObjectId(_id) }, { $set: { [field]: value } })
             .then(result => {
                 if (result.modifiedCount > 0) {
@@ -148,7 +150,7 @@ app.post('/updateCellProperty', (req, res) => {
         const updateQuery = { $set: {} };
         updateQuery.$set[`${field}.${property}`] = value;
 
-        db.collection('cellrows')
+        db.collection(collection)
             .updateOne({ _id: new ObjectId(_id) }, updateQuery)
             .then(result => {
                 if (result.modifiedCount > 0) {
@@ -203,7 +205,7 @@ app.post('/clearCellProperty', (req, res) => {
         updateQuery.$set[`${field}.${key}`] = defaultFormatting[key];
     }
 
-    db.collection('cellrows')
+    db.collection(collection)
         .updateOne({ _id: new ObjectId(_id) }, updateQuery)
         .then(result => {
             if (result.modifiedCount > 0) {
@@ -214,20 +216,5 @@ app.post('/clearCellProperty', (req, res) => {
         })
         .catch(err => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
-        });
-});
-
-app.get('/rows', (req, res) => {
-    db.collection('rows')
-        .findOne({})
-        .then(doc => {
-            if (doc) {
-                res.status(200).json(doc);
-            } else {
-                res.status(404).json({ error: 'Data not found' });
-            }
-        })
-        .catch(() => {
-            res.status(500).json({ error: 'Could not fetch Cell Rows document' });
         });
 });
