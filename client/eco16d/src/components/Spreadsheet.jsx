@@ -55,39 +55,49 @@ function Spreadsheet({ selectedCell,
             const keys = Object.keys(data[0]);
             const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined' && key != 'pin');
             const promises = filteredKeys.map(async key => {
-                let cellEditorFramework; 
-                let renderer = false;
                 let date = false;
-                let select = false;
-                cellEditorFramework = data[0][key].cellRenderer;
-                if (cellEditorFramework == 'agCheckboxCellEditor') {
-                    renderer = true;
-                }
-                if (cellEditorFramework == 'agDateStringCellEditor') {
-                    date = true;
-                }
-                if (cellEditorFramework == 'agSelectCellEditor') {
-                    select = true;
-                }
+                const width = data[0][key].width || null;
                 return {
                     headerName: key,
                     field: key,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-                    cellEditor: cellEditorFramework,
-                    cellEditorParams: select ? {
-                        values: ['Yes', 'No', 'Standby'],
-                    } : '',
+                    width: width,
+                    cellEditorSelector: (params) => {
+                        const cellEditorFramework = params.data[key]?.cellRenderer;
+                        console.log("editor taken as " + cellEditorFramework)
+                        if (cellEditorFramework === 'agCheckboxCellEditor') {
+                            return { component: 'agCheckboxCellEditor' };
+                        }
+                        if (cellEditorFramework === 'agDateStringCellEditor') {
+                            date = true;
+                            return { component: 'agDateStringCellEditor' };
+                        }
+                        if (cellEditorFramework === 'agSelectCellEditor') {
+                            return { 
+                                component: 'agSelectCellEditor', 
+                                params: { values: params.data[key]?.values || [] } 
+                            };
+                        }
+                        return null;
+                    },
+                    cellRendererSelector: (params) => {
+                        const cellRenderer = params.data[key]?.cellRenderer;
+                        if (cellRenderer === 'agCheckboxCellEditor') {
+                            return { component: 'agCheckboxCellRenderer' };
+                        }
+                        return null;
+                    },
                     wrapHeaderText: true,
                     autoHeaderHeight: true,
+                    colSpan: (params) => params.data[key]?.span || '',
+                    rowSpan: (params) => params.data[key]?.spanrow || '',
                     cellRenderer: renderer 
                     ? 'agCheckboxCellRenderer' 
                     // : key == 'lienGooglePourLesImages'
                     // ? LinkRenderer
                     : '',
-                    colSpan: (params) => params.data[key].span,
-                    rowSpan: (params) => params.data[key].spanrow,
                     valueGetter: (params) => params.data[key]?.value || '',
                     valueFormatter: date ? (params) => {
                         const value = params.value;
@@ -169,6 +179,30 @@ function Spreadsheet({ selectedCell,
             setColDefs(colDefs);
         }
     };
+
+    const onColumnResized = (params) => {
+        if (params.finished && params.column) {
+            const colId = params.column.getColId();
+            const newWidth = params.column.getActualWidth();
+            console.log(params)
+            console.log(colId);
+            console.log(newWidth)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'width',
+                value: newWidth
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+                .then(response => {
+                    socket.emit('updateCell', updateData);
+                    fetchData();
+                })
+                .catch(err => {
+                    console.log('Error updating data:', err);
+                });
+            }
+        };
 
     const onCellValueChanged = (params) => {
         const field = params.colDef.field;
@@ -485,20 +519,65 @@ function Spreadsheet({ selectedCell,
         }
     }, [e]);
 
+    const addColumn = () => {
+        const newColumnName = prompt('Enter new column name:');
+        if (newColumnName) {
+            const updatedColDefs = [...colDefs];
+            updatedColDefs[1].children.push({
+                headerName: newColumnName,
+                field: newColumnName,
+                editable: true,
+                filter: true,
+                suppressMovable: true,
+                width: 150,
+                cellEditorSelector: null,
+                cellRendererSelector: null,
+                wrapHeaderText: true,
+                autoHeaderHeight: true,
+                valueGetter: (params) => params.data[newColumnName]?.value || '',
+                cellStyle: (params) => {
+                    const style = params.data[newColumnName];
+                    return {
+                        fontFamily: style?.fontFamily,
+                        fontSize: style?.fontSize,
+                        fontWeight: style?.fontWeight,
+                        fontStyle: style?.fontStyle,
+                        textDecoration: style?.textDecoration,
+                        color: style?.color,
+                        backgroundColor: style?.backgroundColor,
+                        borderRight: style?.borderRight,
+                        textAlign: style?.textAlign,
+                        verticalAlign: style?.verticalAlign,
+                    };
+                }
+            });
+            setColDefs(updatedColDefs);
+        }
+    };
 
     return (
-        <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
-            <AgGridReact
-                rowData={rowData}
-                columnDefs={colDefs}
-                rowSelection={'multiple'}
-                defaultColDef={{ editable: true }}
-                onCellValueChanged={onCellValueChanged}
-                onCellClicked={onCellClicked}
-                columnHoverHighlight={true}
-                suppressDragLeaveHidesColumns={true}
-                suppressRowTransform={true}
-            />
+        <div>
+            <button onClick={addColumn}>Add Column</button>
+            <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
+                <AgGridReact
+                    rowData={rowData}
+                    columnDefs={colDefs}
+                    rowSelection={'multiple'}
+                    defaultColDef={{ 
+                        editable: true,
+                        wrapHeaderText: true,
+                        autoHeaderHeight: true,
+                        resizable: true,
+                    }}
+                    onCellValueChanged={onCellValueChanged}
+                    onCellClicked={onCellClicked}
+                    columnHoverHighlight={true}
+                    suppressDragLeaveHidesColumns={true}
+                    suppressRowTransform={true}
+                    onColumnResized={onColumnResized}
+                    
+                />
+            </div>
         </div>
     );
 }
