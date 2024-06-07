@@ -195,7 +195,9 @@ app.post('/clearCellProperty', (req, res) => {
         wrapText: false,
         format: "text",
         locked: null,
-        cellRenderer: "agTextCellEditor"
+        cellRenderer: "agTextCellEditor",
+        span: 1,
+        spanrow: 1
     };
 
     const updateQuery = {
