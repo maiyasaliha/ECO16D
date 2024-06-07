@@ -11,7 +11,7 @@ const socket = io('http://localhost:3001');
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, 
-    format, f, editor, e, z, m, merge, mr, mergeRow}) {
+    format, f, editor, e, z, m, merge, mr, mergeRow, bg, fc}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -157,7 +157,7 @@ function Spreadsheet({ selectedCell,
     };
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor && bg) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -174,10 +174,10 @@ function Spreadsheet({ selectedCell,
                     console.log('Error updating data:', err);
                 });
         }
-    }, [bgcolor]);
+    }, [bg]);
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && color) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && color && fc) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -194,7 +194,7 @@ function Spreadsheet({ selectedCell,
                     console.log('Error updating data:', err);
                 });
         }
-    }, [color]);
+    }, [fc]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && fontFamily) {
