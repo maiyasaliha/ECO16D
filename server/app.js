@@ -220,18 +220,3 @@ app.post('/clearCellProperty', (req, res) => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
         });
 });
-
-app.get('/rows', (req, res) => {
-    db.collection('rows')
-        .findOne({})
-        .then(doc => {
-            if (doc) {
-                res.status(200).json(doc);
-            } else {
-                res.status(404).json({ error: 'Data not found' });
-            }
-        })
-        .catch(() => {
-            res.status(500).json({ error: 'Could not fetch Cell Rows document' });
-        });
-});
