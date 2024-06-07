@@ -117,6 +117,7 @@ function Spreadsheet({ selectedCell,
                     lockPinned: true,
                     width: 70,
                     sortable: false,
+                    headerCheckboxSelection: true,
                     resizable: false,
                     cellStyle: {textAlign: 'center'}
                 },

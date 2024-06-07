@@ -1,6 +1,13 @@
 .ag-theme-quartz .ag-cell {
-    border-left: 1px solid #ccc; /* Adjust thickness and color as needed */
-    border-bottom: 1px solid #ccc; /* Adjust thickness and color as needed */
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.ag-header-cell.selected {
+    background-color: #c5e1a5;
+}
+.ag-cell.selected {
+    background-color: #c5e1a5;
 }
 
 .ag-header-cell-label .ag-header-cell-text {
@@ -8,5 +15,4 @@
     align-items: center;
     justify-content: center;
     display: flex;
-
 }
