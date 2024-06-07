@@ -9,7 +9,7 @@ const styles = {
     cursor: 'pointer',
 }
 
-function ColourPicker({ selectedCell, color, setColor }) {
+function ColourPicker({ selectedCell, color, setColor, setBg }) {
     const [showPicker, setShowPicker] = useState(false);
 
     const togglePicker = () => {
@@ -19,6 +19,7 @@ function ColourPicker({ selectedCell, color, setColor }) {
     const onChangeHandler = (updatedColor) => {
         if (selectedCell) {
             setColor(updatedColor.hex);
+            setBg(prevBg => prevBg + 1);
             togglePicker();
         }
     };

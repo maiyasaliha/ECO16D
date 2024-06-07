@@ -11,7 +11,7 @@ const socket = io('http://localhost:3001');
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, 
-    format, f, editor, e, z, m, merge, mr, mergeRow}) {
+    format, f, editor, e, z, m, merge, mr, mergeRow, bg, fc}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -121,7 +121,45 @@ function Spreadsheet({ selectedCell,
                     resizable: false,
                     cellStyle: {textAlign: 'center'}
                 },
-                ...resolvedColDefs
+            {
+                headerName: 'le rouge suggère un identifiant de commande incorrect de plus de 8 caractères',
+                children: [
+                    {
+                        headerName: 'Last Updated [GMT+8]',
+                        children: resolvedColDefs.slice(0, 2),
+                        headerClass: 'header-group-style1',
+                    },
+                    {
+                        headerName: '16/05/2024 16:03:39',
+                        children: resolvedColDefs.slice(2, 4),
+                        headerClass: 'header-group-style2',
+                    },
+                ],
+                headerClass: 'header-group-style5',
+
+            },
+            {
+                headerName: 'le vert suggère que le numéro de commande existe déjà dans la page colis manquants',
+                children: [
+                    {
+                        headerName: 'ECO À REMPLIR',
+                        children: resolvedColDefs.slice(4, 16),
+                        headerClass: 'header-group-style3',
+                    },
+                ],
+                headerClass: 'header-group-style4',
+            },
+            {
+                headerName: '',
+                children: [
+                    {
+                        headerName: 'AXE À REMPLIR',
+                        children: resolvedColDefs.slice(16),
+                        headerClass: 'header-group-style4',
+                    }
+                ],
+                headerClass: 'header-group-style4'
+            }
             ];
             setColDefs(colDefs);
         }
@@ -158,7 +196,7 @@ function Spreadsheet({ selectedCell,
     };
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && bgcolor && bg) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -175,10 +213,10 @@ function Spreadsheet({ selectedCell,
                     console.log('Error updating data:', err);
                 });
         }
-    }, [bgcolor]);
+    }, [bg]);
 
     useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && color) {
+        if (selectedCell && selectedCell._id && selectedCell.colId && color && fc) {
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
@@ -195,7 +233,7 @@ function Spreadsheet({ selectedCell,
                     console.log('Error updating data:', err);
                 });
         }
-    }, [color]);
+    }, [fc]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && fontFamily) {

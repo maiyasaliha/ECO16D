@@ -25,6 +25,8 @@ function App() {
     const [strikeThrough, setStrikeThrough] = useState('none');
     const [clear, setClear] = useState(false);
     const [b, setB] = useState(0);
+    const [bg, setBg] = useState(0);
+    const [fc, setFc] = useState(0);
     const [i, setI] = useState(0);
     const [s, setS] = useState(0);
     const [u, setU] = useState(0);
@@ -60,12 +62,14 @@ function App() {
             <ColourPicker 
                 selectedCell={selectedCell} 
                 color={bgcolor} 
-                setColor={setBgColor} 
+                setColor={setBgColor}
+                setBg={setBg}
             />
             <FontColourPicker
                 selectedCell={selectedCell} 
                 color={color} 
-                setColor={setColor} 
+                setColor={setColor}
+                setFc={setFc}
             />
             <ClearFormatting 
                 selectedCell={selectedCell}
@@ -144,6 +148,8 @@ function App() {
                 merge={merge}
                 mr={mr}
                 mergeRow={mergeRow}
+                fc={fc}
+                bg={bg}
             />
         </div>
     );
