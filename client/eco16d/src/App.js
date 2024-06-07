@@ -12,7 +12,7 @@ import FontPickerButton from './components/tools/FontPickerButton';
 import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
 import MergeCellsButton from './components/tools/MergeCellsButton';
-import PinRowButton from './components/tools/PinRowButton';
+import MergeRowButton from './components/tools/MergeRowButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -33,14 +33,13 @@ function App() {
     const [e, setE] = useState(0);
     const [z, setZ] = useState(0);
     const [m, setM] = useState(0);
-    const [p, setP] = useState(0);
+    const [mr, setMr] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
     const [format, setFormat] = useState(false);
     const [merge, setMerge] = useState(false);
+    const [mergeRow, setMergeRow] = useState(false);
     const [editor, setEditor] = useState(false);
-    const [pin, setPin] = useState(false);
-    const [pinnedTopRowData, setPinnedTopRowData] = useState([]);
 
     return (
         <div>
@@ -103,12 +102,10 @@ function App() {
                 setM={setM}
                 setMerge={setMerge}
             />
-            <PinRowButton 
+            <MergeRowButton 
                 selectedCell={selectedCell}
-                setP={setP}
-                setPin={setPin}
-                pinnedTopRowData={pinnedTopRowData}
-                setPinnedTopRowData={setPinnedTopRowData}
+                setMr={setMr}
+                setMergeRow={setMergeRow}
             />
             <CellFormatButton 
                 selectedCell={selectedCell}
@@ -145,9 +142,8 @@ function App() {
                 z={z}
                 m={m}
                 merge={merge}
-                p={p}
-                pin={pin}
-                pinnedTopRowData={pinnedTopRowData}
+                mr={mr}
+                mergeRow={mergeRow}
             />
         </div>
     );

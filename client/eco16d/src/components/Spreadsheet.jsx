@@ -11,7 +11,7 @@ const socket = io('http://localhost:3001');
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
     underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, 
-    format, f, editor, e, z, m, merge, p, pin}) {
+    format, f, editor, e, z, m, merge, mr, mergeRow}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -57,12 +57,16 @@ function Spreadsheet({ selectedCell,
                 let cellEditorFramework; 
                 let renderer = false;
                 let date = false;
+                let select = false;
                 cellEditorFramework = data[0][key].cellRenderer;
                 if (cellEditorFramework == 'agCheckboxCellEditor') {
                     renderer = true;
                 }
-                if (cellEditorFramework == 'agDateCellEditor') {
+                if (cellEditorFramework == 'agDateStringCellEditor') {
                     date = true;
+                }
+                if (cellEditorFramework == 'agSelectCellEditor') {
+                    select = true;
                 }
                 return {
                     headerName: key,
@@ -71,8 +75,14 @@ function Spreadsheet({ selectedCell,
                     filter: true,
                     suppressMovable: true,
                     cellEditor: cellEditorFramework,
+                    cellEditorParams: select ? {
+                        values: ['Yes', 'No', 'Standby'],
+                    } : '',
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
                     cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
                     colSpan: (params) => params.data[key].span,
+                    rowSpan: (params) => params.data[key].spanrow,
                     valueGetter: (params) => params.data[key]?.value || '',
                     valueFormatter: date ? (params) => {
                         const value = params.value;
@@ -91,6 +101,7 @@ function Spreadsheet({ selectedCell,
                             textDecoration: style?.textDecoration,
                             color: style?.color,
                             backgroundColor: style?.backgroundColor,
+                            borderRight: style?.borderRight,
                             textAlign: style?.textAlign,
                             verticalAlign: style?.verticalAlign,
                         };
@@ -106,6 +117,7 @@ function Spreadsheet({ selectedCell,
                     lockPinned: true,
                     width: 70,
                     sortable: false,
+                    resizable: false,
                     cellStyle: {textAlign: 'center'}
                 },
                 ...resolvedColDefs
@@ -347,12 +359,12 @@ function Spreadsheet({ selectedCell,
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && format && f) {
-            console.log("setting " + format.value + " for " + selectedCell._id + " " + selectedCell.colId)
+            console.log("setting " + format + " for " + selectedCell._id + " " + selectedCell.colId)
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
                 property: 'format',
-                value: format.value
+                value: format
             };
             axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
@@ -388,6 +400,27 @@ function Spreadsheet({ selectedCell,
     }, [m]);
 
     useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && mergeRow && mr) {
+            console.log("setting merge row" + mergeRow + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'spanrow',
+                value: mergeRow
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data: ', error);
+            });
+        } else {
+        }
+    }, [mr]);
+
+    useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && editor && e) {
             console.log("setting " + editor + " for " + selectedCell._id + " " + selectedCell.colId)
             const updateData = {
@@ -408,25 +441,6 @@ function Spreadsheet({ selectedCell,
         }
     }, [e]);
 
-    useEffect(() => {
-        if (selectedCell && selectedCell._id && selectedCell.colId && p) {
-            console.log("setting " + pin + " for " + selectedCell._id)
-            const updateData = {
-                _id: selectedCell._id,
-                value: pin
-            };
-            axios.post('http://localhost:3001/pin', updateData)
-            .then(response => {
-                socket.emit('pinCell', updateData);
-                fetchData();
-            })
-            .catch(error => {
-                console.error('Error updating data:', error);
-            });
-        } else {
-        }
-    }, [p]);
-
 
     return (
         <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
@@ -439,6 +453,7 @@ function Spreadsheet({ selectedCell,
                 onCellClicked={onCellClicked}
                 columnHoverHighlight={true}
                 suppressDragLeaveHidesColumns={true}
+                suppressRowTransform={true}
             />
         </div>
     );
