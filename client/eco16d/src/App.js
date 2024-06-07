@@ -11,7 +11,8 @@ import StrikethroughButton from './components/tools/StrikethroughButton';
 import FontPickerButton from './components/tools/FontPickerButton';
 import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
-import CellRendererButton from './components/tools/CellRendererButton';
+import MergeCellsButton from './components/tools/MergeCellsButton';
+import MergeRowButton from './components/tools/MergeRowButton';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -31,10 +32,13 @@ function App() {
     const [f, setF] = useState(0);
     const [e, setE] = useState(0);
     const [z, setZ] = useState(0);
+    const [m, setM] = useState(0);
+    const [mr, setMr] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
     const [format, setFormat] = useState(false);
-    const [locked, setLocked] = useState(false);
+    const [merge, setMerge] = useState(false);
+    const [mergeRow, setMergeRow] = useState(false);
     const [editor, setEditor] = useState(false);
 
     return (
@@ -46,6 +50,12 @@ function App() {
                 selectedCell={selectedCell}
                 fontFamily={fontFamily}
                 setFontFamily={setFontFamily}
+            />
+            <SizeButton 
+                selectedCell={selectedCell}
+                fontSize={fontSize}
+                setFontSize={setFontSize}
+                setZ={setZ}
             />
             <ColourPicker 
                 selectedCell={selectedCell} 
@@ -81,17 +91,21 @@ function App() {
                 setStrikeThrough={setStrikeThrough}
                 setS={setS}
             />
-            <SizeButton 
-                selectedCell={selectedCell}
-                fontSize={fontSize}
-                setFontSize={setFontSize}
-                setZ={setZ}
-            />
             <TextAlignButton 
                 selectedCell={selectedCell}
                 setTextAlign={setTextAlign}
                 a={a}
                 setA={setA}
+            />
+            <MergeCellsButton
+                selectedCell={selectedCell}
+                setM={setM}
+                setMerge={setMerge}
+            />
+            <MergeRowButton 
+                selectedCell={selectedCell}
+                setMr={setMr}
+                setMergeRow={setMergeRow}
             />
             <CellFormatButton 
                 selectedCell={selectedCell}
@@ -126,6 +140,10 @@ function App() {
                 editor={editor}
                 e={e}
                 z={z}
+                m={m}
+                merge={merge}
+                mr={mr}
+                mergeRow={mergeRow}
             />
         </div>
     );
