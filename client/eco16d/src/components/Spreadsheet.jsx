@@ -5,6 +5,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import axios from 'axios';
 import io from 'socket.io-client';
 import './styles.css'
+import LinkRenderer from './LinkRenderer';
 
 const socket = io('http://localhost:3001');
 
@@ -80,7 +81,11 @@ function Spreadsheet({ selectedCell,
                     } : '',
                     wrapHeaderText: true,
                     autoHeaderHeight: true,
-                    cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
+                    cellRenderer: renderer 
+                    ? 'agCheckboxCellRenderer' 
+                    // : key == 'lienGooglePourLesImages'
+                    // ? LinkRenderer
+                    : '',
                     colSpan: (params) => params.data[key].span,
                     rowSpan: (params) => params.data[key].spanrow,
                     valueGetter: (params) => params.data[key]?.value || '',

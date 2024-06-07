@@ -36,7 +36,7 @@ function App() {
     const [mr, setMr] = useState(0);
     const [fontSize, setFontSize] = useState(14);
     const [textAlign, setTextAlign] = useState('left');
-    const [format, setFormat] = useState(false);
+    const [format, setFormat] = useState('text');
     const [merge, setMerge] = useState(false);
     const [mergeRow, setMergeRow] = useState(false);
     const [editor, setEditor] = useState(false);
