@@ -148,7 +148,7 @@ function App() {
                 merge={merge}
                 mr={mr}
                 mergeRow={mergeRow}
-                fc ={fc}
+                fc={fc}
                 bg={bg}
             />
         </div>
