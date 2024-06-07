@@ -87,17 +87,15 @@ function Spreadsheet({ selectedCell,
                         if (cellRenderer === 'agCheckboxCellEditor') {
                             return { component: 'agCheckboxCellRenderer' };
                         }
+                        if (key === 'lienGooglePourLesImages' && params.data[key]?.value) {
+                            return { component: LinkRenderer }
+                        }
                         return null;
                     },
                     wrapHeaderText: true,
                     autoHeaderHeight: true,
                     colSpan: (params) => params.data[key]?.span || '',
                     rowSpan: (params) => params.data[key]?.spanrow || '',
-                    cellRenderer: renderer 
-                    ? 'agCheckboxCellRenderer' 
-                    // : key == 'lienGooglePourLesImages'
-                    // ? LinkRenderer
-                    : '',
                     valueGetter: (params) => params.data[key]?.value || '',
                     valueFormatter: date ? (params) => {
                         const value = params.value;

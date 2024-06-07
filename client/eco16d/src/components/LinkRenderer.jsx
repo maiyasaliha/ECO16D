@@ -1,9 +1,20 @@
 import React from "react";
 
-export default (params) => {
+const LinkRenderer = (params) => {
+  let hostname = '';
+
+  try {
+    const url = new URL(params.value);
+    hostname = url.hostname;
+  } catch (error) {
+    console.error('Invalid URL:', params.value);
+  }
+
   return (
     <a href={params.value} target="_blank">
-      {new URL(params.value).hostname}
+      {hostname}
     </a>
-  )
-}
+  );
+};
+
+export default LinkRenderer;
