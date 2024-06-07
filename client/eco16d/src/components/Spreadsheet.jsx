@@ -75,9 +75,7 @@ function Spreadsheet({ selectedCell,
                     filter: true,
                     suppressMovable: true,
                     cellEditor: cellEditorFramework,
-                    cellEditorParams: select ? {
-                        values: ['Yes', 'No', 'Standby'],
-                    } : '',
+                    cellEditorParams: select ? (params) => params.data[key].values : '',
                     wrapHeaderText: true,
                     autoHeaderHeight: true,
                     cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
@@ -480,6 +478,16 @@ function Spreadsheet({ selectedCell,
         }
     }, [e]);
 
+    const onFirstDataRendered = (params) => {
+        params.api.sizeColumnsToFit();
+    };
+
+    const onColumnResized = (params) => {
+        if (params.finished) {
+            params.api.sizeColumnsToFit();
+        }
+    };
+
 
     return (
         <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
@@ -487,7 +495,12 @@ function Spreadsheet({ selectedCell,
                 rowData={rowData}
                 columnDefs={colDefs}
                 rowSelection={'multiple'}
-                defaultColDef={{ editable: true }}
+                defaultColDef={{ 
+                    editable: true,
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
+                    resizable: true,
+                 }}
                 onCellValueChanged={onCellValueChanged}
                 onCellClicked={onCellClicked}
                 columnHoverHighlight={true}
