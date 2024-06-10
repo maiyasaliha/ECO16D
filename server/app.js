@@ -165,56 +165,37 @@ app.post('/updateCellProperty', (req, res) => {
     }
 });
 
-app.post('/clearCellProperty', (req, res) => {
-    const { _id, field } = req.body;
-
-    if (!ObjectId.isValid(_id)) {
-        res.status(400).json({ error: 'Invalid document ID' });
-        return;
-    }
-
-    if (!field) {
-        res.status(400).json({ error: 'Field name is required' });
-        return;
-    }
-
-    const defaultFormatting = {
-        fontFamily: "Arial",
-        fontSize: 14,
-        fontWeight: "normal",
-        fontStyle: "normal",
-        textDecoration: "none",
-        color: "#000000",
-        backgroundColor: "",
-        textAlign: "left",
-        verticalAlign: "middle",
-        borderTop: null,
-        borderRight: "1px solid #ccc",
-        borderBottom: "1px solid #ccc",
-        borderLeft: null,
-        wrapText: false,
-        format: "text",
-        locked: null,
-        cellRenderer: "agTextCellEditor",
-        span: 1,
-        spanrow: 1
-    };
-
-    const updateQuery = {
-        $set: {}
-    };
-    for (const key in defaultFormatting) {
-        updateQuery.$set[`${field}.${key}`] = defaultFormatting[key];
-    }
-
+app.post('/clearSelected', (req, res) => {
     db.collection(collection)
-        .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+        .find()
+        .toArray()
+        .then(documents => {
+            const bulkUpdateOperations = documents.map(doc => {
+                const updateOperations = [];
+                Object.keys(doc).forEach(key => {
+                    if (key !== '_id') {
+                        if (typeof doc[key] === 'object' && doc[key] !== null && !Array.isArray(doc[key])) {
+                            if (doc[key].hasOwnProperty('selected')) {
+                                updateOperations.push({
+                                    updateOne: {
+                                        filter: { _id: doc._id },
+                                        update: { $set: { [`${key}.selected`]: false } }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+                return updateOperations;
+            }).flat();
+
+            return db.collection(collection).bulkWrite(bulkUpdateOperations);
+        })
         .then(result => {
-            if (result.modifiedCount > 0) {
-                res.status(200).json({ message: 'Formatting set to default for field ' + field + ' in cell ' + _id });
-            } else {
-                res.status(404).json({ error: 'Document not found' });
-            }
+            const modifiedCount = result.modifiedCount;
+            if (modifiedCount > 0) {
+                res.status(200).json({ message: 'Selection cleared for all' });
+            } 
         })
         .catch(err => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });

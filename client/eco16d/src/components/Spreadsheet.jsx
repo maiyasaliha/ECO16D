@@ -18,6 +18,14 @@ function Spreadsheet({ selectedCell,
     const gridRef = useRef(null);
     const [selectionRange, setSelectionRange] = useState(null);
     const [mouseDown, setMouseDown] = useState(false);
+    const [startRow, setStartRow] = useState(false);
+    const [startCol, setStartCol] = useState(null);
+    const [endRow, setEndRow] = useState(false);
+    const [endCol, setEndCol] = useState(false);
+    const [startRange, setStartRange] = useState(null);
+    const [endRange, setEndRange] = useState(null);
+    const [lastSelect, setLastSelect] = useState(null);
+
 
     useEffect(() => {
         socket.on('connect', () => {});
@@ -50,6 +58,7 @@ function Spreadsheet({ selectedCell,
     }
 
     useEffect(() => {
+        clearSelected();
         fetchData();
     }, []);
 
@@ -109,7 +118,6 @@ function Spreadsheet({ selectedCell,
                     } : null,
                     cellStyle: (params) => {
                         const style = params.data[key];
-                        const isSelected = isCellInRange(params.node.rowIndex, params.column.colId);
                         return {
                             fontFamily: style?.fontFamily,
                             fontSize: style?.fontSize,
@@ -117,7 +125,7 @@ function Spreadsheet({ selectedCell,
                             fontStyle: style?.fontStyle,
                             textDecoration: style?.textDecoration,
                             color: style?.color,
-                            backgroundColor: isSelected ? 'green' : style?.backgroundColor,
+                            backgroundColor: style.selected? '#e5f3fd' : style?.backgroundColor,
                             borderRight: style?.borderRight,
                             textAlign: style?.textAlign,
                             verticalAlign: style?.verticalAlign,
@@ -234,6 +242,8 @@ function Spreadsheet({ selectedCell,
             data: cellData ? cellData.value : null,
             _id: params.data._id
         });
+        console.log("selected cell");
+        console.log(selectedCell);
     };
 
     useEffect(() => {
@@ -521,6 +531,37 @@ function Spreadsheet({ selectedCell,
         }
     }, [e]);
 
+    const clearSelected = () => {
+        axios.post('http://localhost:3001/clearSelected')
+        .then(response => {
+            //socket.emit('updateCell');
+            fetchData();
+        })
+        .catch(error => {
+            console.error('Error updating data:', error);
+        });
+    }
+    
+
+    const setSelection = (params) => {
+        const field = params.column.getId();
+
+        const updateData = {
+            _id: params.data._id,
+            field: field,
+            property: 'selected',
+            value: true,
+        };
+        axios.post('http://localhost:3001/updateCellProperty', updateData)
+        .then(response => {
+            socket.emit('updateCell', updateData);
+            fetchData();
+        })
+        .catch(error => {
+            console.error('Error updating data:', error);
+        });
+    }
+
     const addColumn = () => {
         const newColumnName = prompt('Enter new column name:');
         if (newColumnName) {
@@ -558,57 +599,35 @@ function Spreadsheet({ selectedCell,
     };
 
     const onCellMouseDown = (params) => {
+        setMouseDown(false);
         setMouseDown(true);
         console.log("mouse down")
-        setSelectionRange({
-            startRowIndex: params.rowIndex,
-            startColId: params.column.getId(),
-            endRowIndex: null,
-            endColId: null
-        });
+        setStartRow(params.rowIndex);
+        setStartCol(params.column.getId());
+        setSelection(params);
         console.log("selecting range")
         console.log("setting range start r " + params.rowIndex)
         console.log("setting range start c " + params.column.getId())
-
     };
 
     const onCellMouseOver = (params) => {
         if (selectionRange && mouseDown) {
             console.log("mouse over")
-            setSelectionRange(prevRange => ({
-                ...prevRange,
-                endRowIndex: params.rowIndex,
-                endColId: params.column.getId()
-            }));
-            console.log("selecting range over")
-            console.log("setting range start r over " + params.rowIndex)
-            console.log("setting range start c over " + params.column.getId())
+            setEndRow(params.rowIndex);
+            setEndCol(params.column.getId());
+            setSelection(params);
         }
-        //setMouseDown(false);
+        setLastSelect()
     };
 
     const onCellMouseUp = () => {
-        console.log("mouse up")
-        setMouseDown(false);
-        setSelectionRange(null);
+        if (mouseDown) {
+            console.log("mouse up")
+            setMouseDown(false);
+            setSelectionRange(null);
+        }
     };
 
-    const isCellInRange = (rowIndex, colId) => {
-        if (!selectionRange || !gridRef.current || !gridRef.current.api) return false;
-    
-        const { startRowIndex, startColId, endRowIndex, endColId } = selectionRange;
-        const minRowIndex = Math.min(startRowIndex, endRowIndex);
-        const maxRowIndex = Math.max(startRowIndex, endRowIndex);
-        const colIds = gridRef.current.api.getAllColumns().map(col => col.colId);
-        const startColIndex = colIds.indexOf(startColId);
-        const endColIndex = colIds.indexOf(endColId);
-        const minColIndex = Math.min(startColIndex, endColIndex);
-        const maxColIndex = Math.max(startColIndex, endColIndex);
-    
-        const colIndex = colIds.indexOf(colId);
-    
-        return rowIndex >= minRowIndex && rowIndex <= maxRowIndex && colIndex >= minColIndex && colIndex <= maxColIndex;
-    };
 
     return (
         <div>
