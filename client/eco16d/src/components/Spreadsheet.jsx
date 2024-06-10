@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css"; 
@@ -15,6 +15,9 @@ function Spreadsheet({ selectedCell,
     format, f, editor, e, z, m, merge, mr, mergeRow, bg, fc}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
+    const gridRef = useRef(null);
+    const [selectionRange, setSelectionRange] = useState(null);
+    const [mouseDown, setMouseDown] = useState(false);
 
     useEffect(() => {
         socket.on('connect', () => {});
@@ -106,6 +109,7 @@ function Spreadsheet({ selectedCell,
                     } : null,
                     cellStyle: (params) => {
                         const style = params.data[key];
+                        const isSelected = isCellInRange(params.node.rowIndex, params.column.colId);
                         return {
                             fontFamily: style?.fontFamily,
                             fontSize: style?.fontSize,
@@ -113,7 +117,7 @@ function Spreadsheet({ selectedCell,
                             fontStyle: style?.fontStyle,
                             textDecoration: style?.textDecoration,
                             color: style?.color,
-                            backgroundColor: style?.backgroundColor,
+                            backgroundColor: isSelected ? 'green' : style?.backgroundColor,
                             borderRight: style?.borderRight,
                             textAlign: style?.textAlign,
                             verticalAlign: style?.verticalAlign,
@@ -553,10 +557,66 @@ function Spreadsheet({ selectedCell,
         }
     };
 
+    const onCellMouseDown = (params) => {
+        setMouseDown(true);
+        console.log("mouse down")
+        setSelectionRange({
+            startRowIndex: params.rowIndex,
+            startColId: params.column.getId(),
+            endRowIndex: null,
+            endColId: null
+        });
+        console.log("selecting range")
+        console.log("setting range start r " + params.rowIndex)
+        console.log("setting range start c " + params.column.getId())
+
+    };
+
+    const onCellMouseOver = (params) => {
+        if (selectionRange && mouseDown) {
+            console.log("mouse over")
+            setSelectionRange(prevRange => ({
+                ...prevRange,
+                endRowIndex: params.rowIndex,
+                endColId: params.column.getId()
+            }));
+            console.log("selecting range over")
+            console.log("setting range start r over " + params.rowIndex)
+            console.log("setting range start c over " + params.column.getId())
+        }
+        //setMouseDown(false);
+    };
+
+    const onCellMouseUp = () => {
+        console.log("mouse up")
+        setMouseDown(false);
+        setSelectionRange(null);
+    };
+
+    const isCellInRange = (rowIndex, colId) => {
+        if (!selectionRange || !gridRef.current || !gridRef.current.api) return false;
+    
+        const { startRowIndex, startColId, endRowIndex, endColId } = selectionRange;
+        const minRowIndex = Math.min(startRowIndex, endRowIndex);
+        const maxRowIndex = Math.max(startRowIndex, endRowIndex);
+        const colIds = gridRef.current.api.getAllColumns().map(col => col.colId);
+        const startColIndex = colIds.indexOf(startColId);
+        const endColIndex = colIds.indexOf(endColId);
+        const minColIndex = Math.min(startColIndex, endColIndex);
+        const maxColIndex = Math.max(startColIndex, endColIndex);
+    
+        const colIndex = colIds.indexOf(colId);
+    
+        return rowIndex >= minRowIndex && rowIndex <= maxRowIndex && colIndex >= minColIndex && colIndex <= maxColIndex;
+    };
+
     return (
         <div>
             <button onClick={addColumn}>Add Column</button>
-            <div className="ag-theme-quartz" style={{ height: '100vh', width: '100%' }}>
+            <div 
+                className="ag-theme-quartz" 
+                style={{ height: '100vh', width: '100%' }}
+            >
                 <AgGridReact
                     rowData={rowData}
                     columnDefs={colDefs}
@@ -569,10 +629,14 @@ function Spreadsheet({ selectedCell,
                     }}
                     onCellValueChanged={onCellValueChanged}
                     onCellClicked={onCellClicked}
+                    onCellMouseUp={onCellMouseUp}
+                    onCellMouseDown={onCellMouseDown}
+                    onCellMouseOver={onCellMouseOver}
                     columnHoverHighlight={true}
                     suppressDragLeaveHidesColumns={true}
                     suppressRowTransform={true}
                     onColumnResized={onColumnResized}
+                    ref={gridRef}
                     
                 />
             </div>

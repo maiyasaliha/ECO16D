@@ -151,6 +151,7 @@ function App() {
                 fc={fc}
                 bg={bg}
             />
+            
         </div>
     );
 }
