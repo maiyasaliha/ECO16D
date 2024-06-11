@@ -30,9 +30,9 @@ connectToDb((err) => {
 
             socket.on('updateCell', (data) => {
                 console.log('Received updateCell event:', data);
-                if (ObjectId.isValid(data._id)) {
+                if (ObjectId.isValid(data?._id)) {
                     const updateQuery = { $set: {} };
-                    updateQuery.$set[`${data.field.property}`] = data.value;
+                    updateQuery.$set[`${data.field.property}`] = data?.value;
 
                     db.collection(collection)
                         .updateOne({ _id: new ObjectId(data._id) }, updateQuery)

@@ -18,13 +18,6 @@ function Spreadsheet({ selectedCell,
     const gridRef = useRef(null);
     const [selectionRange, setSelectionRange] = useState(null);
     const [mouseDown, setMouseDown] = useState(false);
-    const [startRow, setStartRow] = useState(false);
-    const [startCol, setStartCol] = useState(null);
-    const [endRow, setEndRow] = useState(false);
-    const [endCol, setEndCol] = useState(false);
-    const [startRange, setStartRange] = useState(null);
-    const [endRange, setEndRange] = useState(null);
-    const [lastSelect, setLastSelect] = useState(null);
 
 
     useEffect(() => {
@@ -602,8 +595,14 @@ function Spreadsheet({ selectedCell,
         setMouseDown(false);
         setMouseDown(true);
         console.log("mouse down")
-        setStartRow(params.rowIndex);
-        setStartCol(params.column.getId());
+        // setStartRow(params.rowIndex);
+        // setStartCol(params.column.getId());
+        setSelectionRange({
+            startRowIndex: params.rowIndex,
+            startColId: params.column.getId(),
+            endRowIndex: params.rowIndex,
+            endColId: params.column.getId()
+        });
         setSelection(params);
         console.log("selecting range")
         console.log("setting range start r " + params.rowIndex)
@@ -613,11 +612,15 @@ function Spreadsheet({ selectedCell,
     const onCellMouseOver = (params) => {
         if (selectionRange && mouseDown) {
             console.log("mouse over")
-            setEndRow(params.rowIndex);
-            setEndCol(params.column.getId());
+            // setEndRow(params.rowIndex);
+            // setEndCol(params.column.getId());
+            setSelectionRange(prevRange => ({
+                ...prevRange,
+                endRowIndex: params.rowIndex,
+                endColId: params.column.getId()
+            }));
             setSelection(params);
         }
-        setLastSelect()
     };
 
     const onCellMouseUp = () => {
