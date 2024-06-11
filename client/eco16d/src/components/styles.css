@@ -64,6 +64,10 @@
     text-align: center;
 }
 
-.highlighted-cell {
-    background-color: #e5f3fd !important;
+.selection-overlay {
+    position: absolute;
+    background-color: rgba(229, 243, 253, 0.5);
+    border: 1px dashed #1890ff;
+    pointer-events: none;
+    z-index: 999;
 }
