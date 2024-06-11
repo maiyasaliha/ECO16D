@@ -536,12 +536,12 @@ function Spreadsheet({ selectedCell,
     }
     
 
-    const setSelection = (params) => {
-        const field = params.column.getId();
-
+    const setSelection = (row, colId) => {
+        //const field = params.column.getId();
+        console.log("setting selection")
         const updateData = {
-            _id: params.data._id,
-            field: field,
+            _id: row,
+            field: colId,
             property: 'selected',
             value: true,
         };
@@ -592,45 +592,77 @@ function Spreadsheet({ selectedCell,
     };
 
     const onCellMouseDown = (params) => {
-        setMouseDown(false);
+        console.log("on cell down")
+        console.log("params is")
+        console.log(params)
+        if (params.column.colId === 'index') return;
         setMouseDown(true);
-        console.log("mouse down")
-        // setStartRow(params.rowIndex);
-        // setStartCol(params.column.getId());
+        const colId = params.column.colId;
+        const id = params.data[colId].id;
         setSelectionRange({
-            startRowIndex: params.rowIndex,
-            startColId: params.column.getId(),
-            endRowIndex: params.rowIndex,
-            endColId: params.column.getId()
+            start: { rowId: params.data._id, col: colId, colId: id },
+            end: { rowId: params.data._id, col: colId, colId: id }
         });
-        setSelection(params);
-        console.log("selecting range")
-        console.log("setting range start r " + params.rowIndex)
-        console.log("setting range start c " + params.column.getId())
     };
 
     const onCellMouseOver = (params) => {
-        if (selectionRange && mouseDown) {
-            console.log("mouse over")
-            // setEndRow(params.rowIndex);
-            // setEndCol(params.column.getId());
-            setSelectionRange(prevRange => ({
-                ...prevRange,
-                endRowIndex: params.rowIndex,
-                endColId: params.column.getId()
-            }));
-            setSelection(params);
-        }
+        if (!mouseDown || params.column.getId() === 'index') return;
+        console.log("on cell over")
+        const colId = params.column.colId;
+        const id = params.data[colId].id;
+        setSelectionRange(prevRange => ({
+            ...prevRange,
+            end: { rowId: params.data._id, col: colId, colId: id }
+        }));
     };
 
-    const onCellMouseUp = () => {
-        if (mouseDown) {
-            console.log("mouse up")
-            setMouseDown(false);
-            setSelectionRange(null);
-        }
-    };
+    const onMouseUp = () => {
+        console.log("on cell up")
+        setMouseDown(false);
+        if (selectionRange) {
+            const { start, end } = selectionRange;
+            const startRow = Math.min(start.rowId, end.rowId);
+            const endRow = Math.max(start.rowId, end.rowId);
+            const startCol = Math.min(start.colId, end.colId);
+            const endCol = Math.max(start.colId, end.colId);
+            console.log("colId " + end.colId)
 
+            for (let row = startRow; row <= endRow; row++) {
+                for (let col = startCol; col <= endCol; col++) {
+                    const colId = colDefs[1].children[col - 1]?.field;
+                    console.log("colId " + colId);
+                    console.log("row " + row)
+                    setSelection(row, col);
+                }
+            }
+        }
+        console.log(selectionRange)
+    };  
+
+    const highlightCells = (selectionRange) => {
+        const startRow = selectionRange.start.rowId;
+        const startCol = selectionRange.start.colId;
+        const endRow = selectionRange.end.rowId;
+        const endCol = selectionRange.end.colId;
+    
+        for (let row = startRow; row <= endRow; row++) {
+            for (let col = startCol; col <= endCol; col++) {
+                const rowNode = gridRef.current.api.getRowNode(row);
+                const colId = colDefs[1].children[col - 1]?.field;
+                console.log(colId);
+                console.log(rowNode);
+            }
+        }
+    }
+    
+
+    useEffect(() => {
+        document.addEventListener('mouseup', onMouseUp);
+
+        return () => {
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+    }, [selectionRange]);
 
     return (
         <div>
@@ -651,7 +683,6 @@ function Spreadsheet({ selectedCell,
                     }}
                     onCellValueChanged={onCellValueChanged}
                     onCellClicked={onCellClicked}
-                    onCellMouseUp={onCellMouseUp}
                     onCellMouseDown={onCellMouseDown}
                     onCellMouseOver={onCellMouseOver}
                     columnHoverHighlight={true}
@@ -659,6 +690,7 @@ function Spreadsheet({ selectedCell,
                     suppressRowTransform={true}
                     onColumnResized={onColumnResized}
                     ref={gridRef}
+                    
                     
                 />
             </div>
