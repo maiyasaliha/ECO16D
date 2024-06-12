@@ -52,16 +52,16 @@ function Spreadsheet({ selectedCell,
             });
     }
 
-    const fetchRowId = (start, end) => {
-        axios.get(`http://localhost:3001/getObjectIdsInRange/${start}/${end}`)
-            .then(response => {
-                console.log(response.data);
-                setRows(response.data);
-            })
-            .catch(err => {
-                console.log('Error fetching data:', err);
-            });
-    }
+    // const fetchRowId = (start, end) => {
+    //     axios.get(`http://localhost:3001/getObjectIdsInRange/${start}/${end}`)
+    //         .then(response => {
+    //             setRows(response.data);
+    //             return response.data;
+    //         })
+    //         .catch(err => {
+    //             console.log('Error fetching data:', err);
+    //         });
+    // }
     
     useEffect(() => {
         clearSelected();
@@ -565,7 +565,7 @@ function Spreadsheet({ selectedCell,
             fetchData();
         })
         .catch(error => {
-            console.error('Error updating data:', error);
+            console.error('Error selecting ' + row + ' and ' + colId + ':', error);
         });
     }
 
@@ -651,48 +651,53 @@ function Spreadsheet({ selectedCell,
     
         return fields;
     };
-
-    const onMouseUp = () => {
-        console.log("on cell up")
+    
+    const fetchRowId = (start, end) => {
+        return axios.get(`http://localhost:3001/getObjectIdsInRange/${start}/${end}`)
+            .then(response => {
+                console.log(response.data);
+                return response.data;  // Return the fetched data
+            })
+            .catch(err => {
+                console.log('Error fetching data:', err);
+                throw err;  // Propagate the error
+            });
+    };
+    
+    const onMouseUp = async () => {
+        console.log("on cell up");
         setMouseDown(false);
+    
         if (selectionRange) {
             const { start, end } = selectionRange;
             const startRow = Math.min(start.rowIndex, end.rowIndex);
             const endRow = Math.max(start.rowIndex, end.rowIndex);
             const startCol = Math.min(start.colId, end.colId);
             const endCol = Math.max(start.colId, end.colId);
-            console.log("colId " + startRow)
-            console.log("rowIndex  " + endRow)
-            fetchRowId(startRow, endRow);
-
-            for (let row = startRow; row <= endRow; row++) {
-                for (let col = startCol; col <= endCol; col++) {
-                    const colId = columns[col - 1];
-                    const rowId = rows[row - startRow];
-                    console.log("colId " + colId);
-                    console.log("rowId " + rowId);
-                    setSelection(rowId, colId);
-                }
-            }
-        }
-        console.log(selectionRange)
-    };  
-
-    const highlightCells = (selectionRange) => {
-        const startRow = selectionRange.start.rowId;
-        const startCol = selectionRange.start.colId;
-        const endRow = selectionRange.end.rowId;
-        const endCol = selectionRange.end.colId;
+            console.log("startRow " + startRow);
+            console.log("endRow " + endRow);
     
-        for (let row = startRow; row <= endRow; row++) {
-            for (let col = startCol; col <= endCol; col++) {
-                const rowNode = gridRef.current.api.getRowNode(row);
-                const colId = colDefs[1].children[col - 1]?.field;
-                console.log(colId);
-                console.log(rowNode);
+            try {
+                // Wait for the row IDs to be fetched
+                const rowsData = await fetchRowId(startRow, endRow);
+    
+                // Ensure rowsData is fetched before proceeding
+                for (let row = startRow; row <= endRow; row++) {
+                    for (let col = startCol; col <= endCol; col++) {
+                        const colId = columns[col - 1];
+                        const rowId = rowsData[row - startRow];  // Use fetched rows data
+                        console.log("colId " + colId);
+                        console.log("rowId " + rowId);
+                        setSelection(rowId, colId);
+                    }
+                }
+            } catch (err) {
+                console.error('Error processing selection:', err);
             }
         }
-    }
+    
+        console.log(selectionRange);
+    };
     
 
     useEffect(() => {

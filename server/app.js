@@ -204,7 +204,10 @@ app.post('/clearSelected', (req, res) => {
 
 app.get('/getObjectIdsInRange/:startIndex/:endIndex', async (req, res) => {
     const { startIndex, endIndex } = req.params;
-    const skip = parseInt(startIndex) - 1;
+    let skip = parseInt(startIndex) - 1;
+    if(skip == -1) {
+        skip = 0;
+    }
     const limit = parseInt(endIndex) - parseInt(startIndex) + 1;
 
     const results = await db.collection(collection)
