@@ -201,3 +201,21 @@ app.post('/clearSelected', (req, res) => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
         });
 });
+
+app.get('/getObjectIdsInRange/:startIndex/:endIndex', async (req, res) => {
+    const { startIndex, endIndex } = req.params;
+    const skip = parseInt(startIndex) - 1;
+    const limit = parseInt(endIndex) - parseInt(startIndex) + 1;
+
+    const results = await db.collection(collection)
+                                .find({})
+                                .skip(skip)
+                                .limit(limit)
+                                .project({ _id: 1 })
+                                .toArray();
+
+    const objectIds = results.map(doc => doc._id);
+
+    console.log('Object IDs:', objectIds);
+    res.status(200).json(objectIds);
+});

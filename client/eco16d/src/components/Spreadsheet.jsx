@@ -15,6 +15,8 @@ function Spreadsheet({ selectedCell,
     format, f, editor, e, z, m, merge, mr, mergeRow, bg, fc}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
+    const [columns, setColumns] = useState([]);
+    const [rows, setRows] = useState([]);
     const gridRef = useRef(null);
     const [selectionRange, setSelectionRange] = useState(null);
     const [mouseDown, setMouseDown] = useState(false);
@@ -50,6 +52,17 @@ function Spreadsheet({ selectedCell,
             });
     }
 
+    const fetchRowId = (start, end) => {
+        axios.get(`http://localhost:3001/getObjectIdsInRange/${start}/${end}`)
+            .then(response => {
+                console.log(response.data);
+                setRows(response.data);
+            })
+            .catch(err => {
+                console.log('Error fetching data:', err);
+            });
+    }
+    
     useEffect(() => {
         clearSelected();
         fetchData();
@@ -180,6 +193,7 @@ function Spreadsheet({ selectedCell,
             }
             ];
             setColDefs(colDefs);
+            setColumns(countChildren(colDefs));
         }
     };
 
@@ -538,7 +552,7 @@ function Spreadsheet({ selectedCell,
 
     const setSelection = (row, colId) => {
         //const field = params.column.getId();
-        console.log("setting selection")
+        console.log("setting selection row " + row + " column " + colId)
         const updateData = {
             _id: row,
             field: colId,
@@ -593,6 +607,7 @@ function Spreadsheet({ selectedCell,
 
     const onCellMouseDown = (params) => {
         console.log("on cell down")
+        clearSelected();
         console.log("params is")
         console.log(params)
         if (params.column.colId === 'index') return;
@@ -600,8 +615,8 @@ function Spreadsheet({ selectedCell,
         const colId = params.column.colId;
         const id = params.data[colId].id;
         setSelectionRange({
-            start: { rowId: params.data._id, col: colId, colId: id },
-            end: { rowId: params.data._id, col: colId, colId: id }
+            start: { rowIndex: params.rowIndex, rowId: params.data._id, col: colId, colId: id },
+            end: { rowIndex: params.rowIndex, rowId: params.data._id, col: colId, colId: id }
         });
     };
 
@@ -612,8 +627,29 @@ function Spreadsheet({ selectedCell,
         const id = params.data[colId].id;
         setSelectionRange(prevRange => ({
             ...prevRange,
-            end: { rowId: params.data._id, col: colId, colId: id }
+            end: { rowIndex: params.rowIndex, rowId: params.data._id, col: colId, colId: id }
         }));
+    };
+ 
+    const countChildren = (colDefs) => {
+        let fields = [];
+    
+        const countNestedChildren = (children) => {
+            children.forEach(child => {
+                if (child.field) {
+                    fields.push(child.field);
+                }
+                if (child.children) {
+                    countNestedChildren(child.children);
+                }
+            });
+        };
+    
+        colDefs.forEach(colDef => {
+            countNestedChildren(colDef.children || []);
+        });
+    
+        return fields;
     };
 
     const onMouseUp = () => {
@@ -621,18 +657,21 @@ function Spreadsheet({ selectedCell,
         setMouseDown(false);
         if (selectionRange) {
             const { start, end } = selectionRange;
-            const startRow = Math.min(start.rowId, end.rowId);
-            const endRow = Math.max(start.rowId, end.rowId);
+            const startRow = Math.min(start.rowIndex, end.rowIndex);
+            const endRow = Math.max(start.rowIndex, end.rowIndex);
             const startCol = Math.min(start.colId, end.colId);
             const endCol = Math.max(start.colId, end.colId);
-            console.log("colId " + end.colId)
+            console.log("colId " + startRow)
+            console.log("rowIndex  " + endRow)
+            fetchRowId(startRow, endRow);
 
             for (let row = startRow; row <= endRow; row++) {
                 for (let col = startCol; col <= endCol; col++) {
-                    const colId = colDefs[1].children[col - 1]?.field;
+                    const colId = columns[col - 1];
+                    const rowId = rows[row - startRow];
                     console.log("colId " + colId);
-                    console.log("row " + row)
-                    setSelection(row, col);
+                    console.log("rowId " + rowId);
+                    setSelection(rowId, colId);
                 }
             }
         }
