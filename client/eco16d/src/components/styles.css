@@ -71,3 +71,7 @@
     pointer-events: none;
     z-index: 999;
 }
+
+.selected-cell {
+    background-color: #e5f3fd;
+}

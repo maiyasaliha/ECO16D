@@ -677,21 +677,22 @@ function Spreadsheet({ selectedCell,
             console.log("startRow " + startRow);
             console.log("endRow " + endRow);
     
-            try {
-                const rowsData = await fetchRowId(startRow + 1, endRow + 1);
+            // try {
+            //     const rowsData = await fetchRowId(startRow + 1, endRow + 1);
     
-                for (let row = startRow; row <= endRow; row++) {
-                    for (let col = startCol; col <= endCol; col++) {
-                        const colId = columns[col - 1];
-                        const rowId = rowsData[row - startRow];
-                        console.log("colId " + colId);
-                        console.log("rowId " + rowId);
-                        setSelection(rowId, colId);
-                    }
-                }
-            } catch (err) {
-                console.error('Error processing selection:', err);
-            }
+            //     for (let row = startRow; row <= endRow; row++) {
+            //         for (let col = startCol; col <= endCol; col++) {
+            //             const colId = columns[col - 1];
+            //             const rowId = rowsData[row - startRow];
+            //             console.log("colId " + colId);
+            //             console.log("rowId " + rowId);
+            //             setSelection(rowId, colId);
+            //         }
+            //     }
+            // } catch (err) {
+            //     console.error('Error processing selection:', err);
+            // }
+            setSelectionRange(null)
         }
     
         console.log(selectionRange);
@@ -705,6 +706,22 @@ function Spreadsheet({ selectedCell,
             document.removeEventListener('mouseup', onMouseUp);
         };
     }, [selectionRange]);
+
+    const getCellClass = (params) => {
+        if (!selectionRange) return '';
+        const { start, end } = selectionRange;
+        const { rowIndex, colId } = params;
+        if (
+            rowIndex >= Math.min(start.rowIndex, end.rowIndex) &&
+            rowIndex <= Math.max(start.rowIndex, end.rowIndex) &&
+            colId === start.col &&
+            params.data.id >= Math.min(start.rowId, end.rowId) &&
+            params.data.id <= Math.max(start.rowId, end.rowId)
+        ) {
+            return 'selected-cell';
+        }
+        return '';
+    };
 
     return (
         <div>
@@ -730,6 +747,7 @@ function Spreadsheet({ selectedCell,
                     columnHoverHighlight={true}
                     suppressDragLeaveHidesColumns={true}
                     suppressRowTransform={true}
+                    getRowClass={getCellClass}
                     onColumnResized={onColumnResized}
                     ref={gridRef}
                     
