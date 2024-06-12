@@ -656,11 +656,11 @@ function Spreadsheet({ selectedCell,
         return axios.get(`http://localhost:3001/getObjectIdsInRange/${start}/${end}`)
             .then(response => {
                 console.log(response.data);
-                return response.data;  // Return the fetched data
+                return response.data;
             })
             .catch(err => {
                 console.log('Error fetching data:', err);
-                throw err;  // Propagate the error
+                throw err;
             });
     };
     
@@ -678,14 +678,12 @@ function Spreadsheet({ selectedCell,
             console.log("endRow " + endRow);
     
             try {
-                // Wait for the row IDs to be fetched
-                const rowsData = await fetchRowId(startRow, endRow);
+                const rowsData = await fetchRowId(startRow + 1, endRow + 1);
     
-                // Ensure rowsData is fetched before proceeding
                 for (let row = startRow; row <= endRow; row++) {
                     for (let col = startCol; col <= endCol; col++) {
                         const colId = columns[col - 1];
-                        const rowId = rowsData[row - startRow];  // Use fetched rows data
+                        const rowId = rowsData[row - startRow];
                         console.log("colId " + colId);
                         console.log("rowId " + rowId);
                         setSelection(rowId, colId);
