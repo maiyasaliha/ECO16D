@@ -220,3 +220,38 @@ app.post('/clearCellProperty', (req, res) => {
             res.status(500).json({ error: 'Could not set formatting properties to default', details: err });
         });
 });
+
+app.get('/colis', (req, res) => {
+    let cr = []
+    db.collection("colis")
+        .find()
+        .forEach(r => cr.push(r))
+        .then(() => {
+            res.status(200).json(cr)
+        })
+        .catch(() => {
+            res.status(500). json({error: 'Could not fetch Colis documents'})
+        })
+})
+
+app.post('/updateColis', (req, res) => {
+    const { _id, field, value } = req.body;
+
+    if (ObjectId.isValid(_id)) {
+        const updateQuery = { $set: {} };
+        updateQuery.$set[`${field}`] = value;
+
+        db.collection("colis")
+            .updateOne({ _id: new ObjectId(_id) }, updateQuery)
+            .then(result => {
+                if (result.modifiedCount > 0) {
+                    res.status(200).json({ message: 'colis updated to ' + value + ' successfully' });
+                }
+            })
+            .catch(err => {
+                res.status(500).json({ error: 'Could not update the property', details: err });
+            });
+    } else {
+        res.status(400).json({ error: 'Invalid document ID' });
+    }
+});

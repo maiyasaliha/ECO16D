@@ -13,6 +13,7 @@ import TextAlignButton from './components/tools/TextAlignButton';
 import CellFormatButton from './components/tools/CellFormatButton';
 import MergeCellsButton from './components/tools/MergeCellsButton';
 import MergeRowButton from './components/tools/MergeRowButton';
+import ColisSheet from './components/ColisSheet';
 
 function App() {
     const [selectedCell, setSelectedCell] = useState(null);
@@ -45,7 +46,7 @@ function App() {
 
     return (
         <div>
-          <div style={{ display: 'flex', flexDirection: 'row', 
+          {/* <div style={{ display: 'flex', flexDirection: 'row', 
           justifyContent: 'space-evenly', margin: '20px', alignItems: 'center', 
           backgroundColor: '#e5f3fd', paddingRight: '30px', borderRadius: '30px', width: '90%', alignSelf: 'center'}}>
             <FontPickerButton 
@@ -150,7 +151,8 @@ function App() {
                 mergeRow={mergeRow}
                 fc={fc}
                 bg={bg}
-            />
+            /> */}
+            <ColisSheet />
         </div>
     );
 }
