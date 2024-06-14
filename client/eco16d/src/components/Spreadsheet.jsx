@@ -10,7 +10,8 @@ const socket = io('http://localhost:3001');
 
 function Spreadsheet({ selectedCell, 
     setSelectedCell, bgcolor, color, clear, setClear, bold, italic, 
-    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, format, f, editor, e, z}) {
+    underline, strikeThrough, b, i, s, u, fontFamily, fontSize, textAlign, a, 
+    format, f, editor, e, z, m, merge, mr, mergeRow}) {
     const [rowData, setRowData] = useState([]);
     const [colDefs, setColDefs] = useState([]);
 
@@ -48,6 +49,7 @@ function Spreadsheet({ selectedCell,
         fetchData();
     }, []);
 
+<<<<<<< HEAD
     const getEditor = (data, key) => {
         //let temp = param.data[key].format;
         console.log("data is "  + data);
@@ -70,34 +72,71 @@ function Spreadsheet({ selectedCell,
         return 'agTextCellEditor'
     };
     
+=======
+>>>>>>> 493c00d0511a5549b1eb5f6e1946f2d08d6068f7
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
-            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined');
+            const filteredKeys = keys.filter(key => key !== '_id' && key !== 'index' && key != 'undefined' && key != 'pin');
             const promises = filteredKeys.map(async key => {
+                let cellEditorFramework; 
+                let renderer = false;
+                let date = false;
+                let select = false;
+                cellEditorFramework = data[0][key].cellRenderer;
+                if (cellEditorFramework == 'agCheckboxCellEditor') {
+                    renderer = true;
+                }
+                if (cellEditorFramework == 'agDateStringCellEditor') {
+                    date = true;
+                }
+                if (cellEditorFramework == 'agSelectCellEditor') {
+                    select = true;
+                }
                 return {
                     headerName: key,
                     field: key,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
+<<<<<<< HEAD
                     valueGetter: (params) => params.data[key].value || '',
                     cellEditor: 
                     (params) => params.data[key].cellRenderer === 'agTextCellEditor' 
                     ? 'agTextCellEditor' 
                     : params.data[key].cellRenderer === 'agTextCellEditor',
+=======
+                    cellEditor: cellEditorFramework,
+                    cellEditorParams: select ? {
+                        values: ['Yes', 'No', 'Standby'],
+                    } : '',
+                    wrapHeaderText: true,
+                    autoHeaderHeight: true,
+                    cellRenderer: renderer ? 'agCheckboxCellRenderer' : '',
+                    colSpan: (params) => params.data[key].span,
+                    rowSpan: (params) => params.data[key].spanrow,
+                    valueGetter: (params) => params.data[key]?.value || '',
+                    valueFormatter: date ? (params) => {
+                        const value = params.value;
+                        if (!value) return '';
+                        const dateValue = new Date(value);
+                        const formattedDate = `${('0' + (dateValue.getMonth() + 1)).slice(-2)}-${('0' + dateValue.getDate()).slice(-2)}-${dateValue.getFullYear()}`;
+                        return formattedDate;
+                    } : null,
+>>>>>>> 493c00d0511a5549b1eb5f6e1946f2d08d6068f7
                     cellStyle: (params) => {
                         const style = params.data[key];
                         return {
-                            fontFamily: style.fontFamily,
-                            fontSize: style.fontSize,
-                            fontWeight: style.fontWeight,
-                            fontStyle: style.fontStyle,
-                            textDecoration: style.textDecoration,
-                            color: style.color,
-                            backgroundColor: style.backgroundColor,
-                            textAlign: style.textAlign,
-                            verticalAlign: style.verticalAlign,
+                            fontFamily: style?.fontFamily,
+                            fontSize: style?.fontSize,
+                            fontWeight: style?.fontWeight,
+                            fontStyle: style?.fontStyle,
+                            textDecoration: style?.textDecoration,
+                            color: style?.color,
+                            backgroundColor: style?.backgroundColor,
+                            borderRight: style?.borderRight,
+                            textAlign: style?.textAlign,
+                            verticalAlign: style?.verticalAlign,
                         };
                     }
                 };
@@ -112,6 +151,8 @@ function Spreadsheet({ selectedCell,
                     width: 70,
                     sortable: false,
                     headerCheckboxSelection: true,
+                    resizable: false,
+                    cellStyle: {textAlign: 'center'}
                 },
                 ...resolvedColDefs
             ];
@@ -352,12 +393,12 @@ function Spreadsheet({ selectedCell,
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && format && f) {
-            console.log("setting " + format.value + " for " + selectedCell._id + " " + selectedCell.colId)
+            console.log("setting " + format + " for " + selectedCell._id + " " + selectedCell.colId)
             const updateData = {
                 _id: selectedCell._id,
                 field: selectedCell.colId,
                 property: 'format',
-                value: format.value
+                value: format
             };
             axios.post('http://localhost:3001/updateCellProperty', updateData)
             .then(response => {
@@ -370,6 +411,48 @@ function Spreadsheet({ selectedCell,
         } else {
         }
     }, [f]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && merge && m) {
+            console.log("setting " + merge + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'span',
+                value: merge
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data: ', error);
+            });
+        } else {
+        }
+    }, [m]);
+
+    useEffect(() => {
+        if (selectedCell && selectedCell._id && selectedCell.colId && mergeRow && mr) {
+            console.log("setting merge row" + mergeRow + " for " + selectedCell._id + " " + selectedCell.colId)
+            const updateData = {
+                _id: selectedCell._id,
+                field: selectedCell.colId,
+                property: 'spanrow',
+                value: mergeRow
+            };
+            axios.post('http://localhost:3001/updateCellProperty', updateData)
+            .then(response => {
+                socket.emit('updateCell', updateData);
+                fetchData();
+            })
+            .catch(error => {
+                console.error('Error updating data: ', error);
+            });
+        } else {
+        }
+    }, [mr]);
 
     useEffect(() => {
         if (selectedCell && selectedCell._id && selectedCell.colId && editor && e) {
@@ -404,6 +487,7 @@ function Spreadsheet({ selectedCell,
                 onCellClicked={onCellClicked}
                 columnHoverHighlight={true}
                 suppressDragLeaveHidesColumns={true}
+                suppressRowTransform={true}
             />
         </div>
     );
