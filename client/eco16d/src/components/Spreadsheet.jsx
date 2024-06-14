@@ -49,7 +49,6 @@ function Spreadsheet({ selectedCell,
         fetchData();
     }, []);
 
-<<<<<<< HEAD
     const getEditor = (data, key) => {
         //let temp = param.data[key].format;
         console.log("data is "  + data);
@@ -72,8 +71,6 @@ function Spreadsheet({ selectedCell,
         return 'agTextCellEditor'
     };
     
-=======
->>>>>>> 493c00d0511a5549b1eb5f6e1946f2d08d6068f7
     const generateColDefs = async (data) => {
         if (data.length > 0) {
             const keys = Object.keys(data[0]);
@@ -99,13 +96,6 @@ function Spreadsheet({ selectedCell,
                     editable: true,
                     filter: true,
                     suppressMovable: true,
-<<<<<<< HEAD
-                    valueGetter: (params) => params.data[key].value || '',
-                    cellEditor: 
-                    (params) => params.data[key].cellRenderer === 'agTextCellEditor' 
-                    ? 'agTextCellEditor' 
-                    : params.data[key].cellRenderer === 'agTextCellEditor',
-=======
                     cellEditor: cellEditorFramework,
                     cellEditorParams: select ? {
                         values: ['Yes', 'No', 'Standby'],
@@ -123,7 +113,6 @@ function Spreadsheet({ selectedCell,
                         const formattedDate = `${('0' + (dateValue.getMonth() + 1)).slice(-2)}-${('0' + dateValue.getDate()).slice(-2)}-${dateValue.getFullYear()}`;
                         return formattedDate;
                     } : null,
->>>>>>> 493c00d0511a5549b1eb5f6e1946f2d08d6068f7
                     cellStyle: (params) => {
                         const style = params.data[key];
                         return {
